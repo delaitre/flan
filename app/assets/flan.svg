@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="123.67649mm"
+   height="123.67649mm"
+   viewBox="0 0 123.67649 123.67649"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="flan.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.50423098"
+     inkscape:cx="80.320333"
+     inkscape:cy="230.0533"
+     inkscape:window-width="2560"
+     inkscape:window-height="1371"
+     inkscape:window-x="1080"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g51910"
+     inkscape:snap-global="false" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-52.700588,-537.65315)">
+    <g
+       id="g51910">
+      <circle
+         style="fill:#6f93fe;fill-opacity:1;stroke:none;stroke-width:0.263;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+         id="circle62145-1-7-9-7"
+         cx="114.53883"
+         cy="599.49139"
+         r="61.838245"
+         inkscape:export-filename="/home/jeremie/src/flan/app/assets/icon_custom.png"
+         inkscape:export-xdpi="137.21739"
+         inkscape:export-ydpi="137.21739" />
+      <path
+         id="path8345-2-5-4-6"
+         style="fill:#000000;fill-opacity:0.1;stroke:none;stroke-width:0.263;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stop-color:#000000"
+         d="m 136.73857,574.18256 -53.248433,36.98947 -15.70912,0.0403 50.000053,49.99591 a 61.838244,61.838244 0 0 0 57.25232,-49.04765 z"
+         inkscape:export-filename="/home/jeremie/src/flan/app/assets/icon_custom.png"
+         inkscape:export-xdpi="137.21739"
+         inkscape:export-ydpi="137.21739" />
+      <g
+         id="g8661-0-2-9-3"
+         style="fill:#feda6f;fill-opacity:1"
+         transform="translate(11.362757,454.74231)"
+         inkscape:export-filename="/home/jeremie/src/flan/app/assets/icon_custom.png"
+         inkscape:export-xdpi="137.21739"
+         inkscape:export-ydpi="137.21739">
+        <path
+           style="opacity:1;fill:#feda6f;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 71.194077,154.89163 8.940818,-30.99338 c 1.180305,-4.09153 5.640822,-6.83751 12.610616,-2.86573 6.290657,-4.23376 10.036529,-0.51628 10.473279,-0.009 v 33.86811 z"
+           id="path6620-9-2-0-1"
+           sodipodi:nodetypes="cscccc" />
+        <path
+           style="opacity:1;fill:#feda6f;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 135.2435,154.89163 -8.94082,-30.99338 c -1.1803,-4.09153 -5.64082,-6.83751 -12.61061,-2.86573 -6.29066,-4.23376 -10.03653,-0.51628 -10.47328,-0.009 v 33.86811 z"
+           id="path6620-5-3-8-9-7"
+           sodipodi:nodetypes="cscccc" />
+      </g>
+      <g
+         id="g8657-6-9-1-5"
+         style="fill:#f2bd29;fill-opacity:1"
+         transform="translate(11.362757,454.74231)"
+         inkscape:export-filename="/home/jeremie/src/flan/app/assets/icon_custom.png"
+         inkscape:export-xdpi="137.21739"
+         inkscape:export-ydpi="137.21739">
+        <path
+           id="path7711-0-7-7-9"
+           style="fill:#f2bd29;fill-opacity:1;stroke:none;stroke-width:1.00157;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 390.11914,457.41211 -11.09961,129.69336 h 11.09961 z m -39.58398,0.0332 -31.91016,130.45703 h 22.0625 z"
+           transform="scale(0.26458333)" />
+        <path
+           id="path7711-3-6-3-7-6"
+           style="fill:#f2bd29;fill-opacity:1;stroke:none;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 103.21902,121.02362 2.93677,34.3147 h -2.93677 z m 10.47326,0.009 8.4429,34.51676 h -5.83737 z" />
+      </g>
+      <g
+         id="g8665-2-6-1-21"
+         style="fill:#ededed;fill-opacity:1"
+         transform="translate(11.362757,454.74231)"
+         inkscape:export-filename="/home/jeremie/src/flan/app/assets/icon_custom.png"
+         inkscape:export-xdpi="137.21739"
+         inkscape:export-ydpi="137.21739">
+        <path
+           style="opacity:1;fill:#ededed;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 56.8458,154.5674 c -1.406857,-3.5e-4 -1.095737,1.58563 -0.01872,2.2362 0.690336,0.417 12.003281,7.23217 13.4103,7.23217 1.329258,0 33.13461,0.19654 33.13461,0.19654 v -9.65321 z"
+           id="path485-61-1-1-7"
+           sodipodi:nodetypes="sssccs" />
+        <path
+           style="opacity:1;fill:#ededed;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 149.89819,154.5674 c 1.40686,-3.5e-4 1.09574,1.58563 0.0187,2.2362 -0.69033,0.417 -12.00327,7.23217 -13.41029,7.23217 -1.32926,0 -33.13461,0.19654 -33.13461,0.19654 v -9.65321 z"
+           id="path485-6-8-2-5-8"
+           sodipodi:nodetypes="sssccs" />
+      </g>
+      <path
+         style="fill:#d94f08;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 84.396817,603.18784 11.723107,-25.76232 c 0,0 3.39934,2.1571 6.938746,4.20058 1.63893,-1.63893 7.0027,-4.61923 7.0027,-4.61923 l 4.36732,14.0626 3.67583,-14.47474 c 0,0 8.2743,8.91482 8.36023,8.28775 0.0859,-0.62707 2.82159,-8.11733 2.82159,-8.11733 l 11.23457,11.4636 c 0.0281,-10.24819 -2.39848,-15.12776 -2.39848,-15.12776 -17.34997,-3.33962 -28.76668,-3.83901 -46.857153,-0.38418 0,0 -5.969197,9.69698 -6.86846,30.47103 z"
+         id="path110786"
+         sodipodi:nodetypes="cccccccccccc" />
+    </g>
+  </g>
+</svg>
