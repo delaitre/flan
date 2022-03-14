@@ -1,15 +1,14 @@
 
 #pragma once
 
-#include <flan/matching_rule.hpp>
+#include <flan/rule_set.hpp>
 #include <QSettings>
-#include <QVector>
 
 namespace flan
 {
 QSettings get_default_settings();
 
-void save_rules_to_settings(const QVector<matching_rule_t>& rules, QSettings& settings);
+void save_rules_to_settings(const base_node_t& rules, QSettings& settings);
 
-QVector<matching_rule_t> load_rules_from_settings(QSettings& settings);
+base_node_uniq_t load_rules_from_settings(QSettings& settings);
 } // namespace flan

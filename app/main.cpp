@@ -11,30 +11,53 @@ using namespace flan;
 
 namespace
 {
-QVector<matching_rule_t> get_initial_rules()
+std::unique_ptr<base_node_t> get_initial_rules()
 {
-    QVector<matching_rule_t> rules;
+    base_node_uniq_t root;
 
     // Define FLAN_USE_DEFAULT_RULES to load a default set of rules instead of loading the settings.
     // This is useful for development.
 //#define FLAN_USE_DEFAULT_RULES
 #ifdef FLAN_USE_DEFAULT_RULES
-    rules << matching_rule_t{
-        "flan", QRegularExpression{"flan"}, filtering_behaviour_t::keep_line, true};
-    rules << matching_rule_t{
-        "Brackets", QRegularExpression{"[(){}[\\]]"}, filtering_behaviour_t::none, true};
-    rules << matching_rule_t{
-        "Strings", QRegularExpression{"\"[^\"]*\""}, filtering_behaviour_t::none, true};
-    rules << matching_rule_t{
-        "Empty line", QRegularExpression{"^\\w*$"}, filtering_behaviour_t::none, false};
-    rules << matching_rule_t{
-        "Anything", QRegularExpression{".*"}, filtering_behaviour_t::none, false};
+    root = std::make_unique<base_node_t>();
+
+    auto add_group_node = [](base_node_t& parent, QString name) -> base_node_t& {
+        return parent.add_child(std::make_unique<group_node_t>(std::move(name)));
+    };
+
+    auto add_rule_node = [](base_node_t& parent, matching_rule_t rule) -> base_node_t& {
+        return parent.add_child(std::make_unique<rule_node_t>(std::move(rule)));
+    };
+
+    add_rule_node(
+        *root,
+        matching_rule_t{
+            "flan", QRegularExpression{"flan"}, filtering_behaviour_t::keep_line, false});
+
+    auto& group_coding = add_group_node(*root, "Coding");
+    add_rule_node(
+        group_coding,
+        matching_rule_t{
+            "Brackets", QRegularExpression{"[(){}[\\]]"}, filtering_behaviour_t::none, true});
+    add_rule_node(
+        group_coding,
+        matching_rule_t{
+            "Strings", QRegularExpression{"\"[^\"]*\""}, filtering_behaviour_t::none, true});
+
+    auto& group_general = add_group_node(*root, "General");
+    add_rule_node(
+        group_general,
+        matching_rule_t{
+            "Empty line", QRegularExpression{"^\\w*$"}, filtering_behaviour_t::none, false});
+    add_rule_node(
+        group_general,
+        matching_rule_t{"Anything", QRegularExpression{".*"}, filtering_behaviour_t::none, false});
 #else
     auto settings = get_default_settings();
-    rules = load_rules_from_settings(settings);
+    root = load_rules_from_settings(settings);
 #endif
 
-    return rules;
+    return root;
 }
 
 QString get_initial_text_log()
@@ -85,11 +108,12 @@ int main(int argc, char** argv)
     QApplication app(argc, argv);
 
     rule_model_t rule_model;
-    rule_model.set_rules(get_initial_rules());
+    auto rule_root = get_initial_rules();
+    rule_model.set_root(rule_root.get());
 
-    app.connect(&app, &QApplication::aboutToQuit, &app, [&rule_model]() {
+    app.connect(&app, &QApplication::aboutToQuit, &app, [rule_root = rule_root.get()]() {
         auto settings = get_default_settings();
-        save_rules_to_settings(rule_model.rules(), settings);
+        save_rules_to_settings(*rule_root, settings);
     });
 
     auto main_widget = new main_widget_t;

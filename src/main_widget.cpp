@@ -2,12 +2,39 @@
 #include <flan/log_widget.hpp>
 #include <flan/main_widget.hpp>
 #include <flan/rule_model.hpp>
+#include <flan/rule_set.hpp>
 #include <flan/rule_tree_widget.hpp>
 #include <QSplitter>
 #include <QVBoxLayout>
 
 namespace flan
 {
+namespace
+{
+QVector<matching_rule_t> get_rules_from_node(const base_node_t* node)
+{
+    if (!node)
+        return {};
+
+    QVector<matching_rule_t> rules;
+
+    node->visit([&rules](const base_node_t& node) {
+        switch (node.type())
+        {
+        case node_type_t::base:
+            [[fallthrough]];
+        case node_type_t::group:
+            break;
+        case node_type_t::rule:
+            rules.append(static_cast<const rule_node_t&>(node).rule());
+            break;
+        }
+    });
+
+    return rules;
+}
+} // namespace
+
 main_widget_t::main_widget_t(QWidget* parent)
     : QWidget{parent}
     , _rules{new rule_tree_widget_t}
@@ -38,13 +65,13 @@ void main_widget_t::set_model(rule_model_t* model)
     if (model)
     {
         connect(model, &rule_model_t::dataChanged, this, [this, model]() {
-            _log->set_rules(model->rules());
+            _log->set_rules(get_rules_from_node(model->root()));
         });
     }
 
     _rules->set_model(model);
     if (model)
-        _log->set_rules(model->rules());
+        _log->set_rules(get_rules_from_node(model->root()));
     else
         _log->set_rules({});
 }

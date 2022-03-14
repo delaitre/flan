@@ -25,6 +25,8 @@ set(SOURCES
     src/rule_highlighter.cpp
     include/flan/settings.hpp
     src/settings.cpp
+    include/flan/rule_set.hpp
+    src/rule_set.cpp
 )
 
 add_library(flan SHARED ${SOURCES})

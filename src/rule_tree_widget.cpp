@@ -31,7 +31,7 @@ void rule_tree_widget_t::set_model(rule_model_t* model)
         // same fixed size.
         auto header = _tree->header();
         header->setStretchLastSection(false);
-        header->setSectionResizeMode(rule_model_t::rule_column_index, QHeaderView::Stretch);
+        header->setSectionResizeMode(rule_model_t::name_column_index, QHeaderView::Stretch);
         header->setSectionResizeMode(rule_model_t::remove_column_index, QHeaderView::Fixed);
         header->setSectionResizeMode(rule_model_t::keep_column_index, QHeaderView::Fixed);
         header->setSectionResizeMode(rule_model_t::highlight_column_index, QHeaderView::Fixed);
