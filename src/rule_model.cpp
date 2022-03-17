@@ -23,8 +23,8 @@ QModelIndex rule_model_t::index(int row, int column, const QModelIndex& parent) 
 {
     if (parent.isValid())
     {
-        auto node = static_cast<base_node_t*>(parent.internalPointer());
-        return createIndex(row, column, &node->child(row));
+        if (auto node = static_cast<base_node_t*>(parent.internalPointer()); node)
+            return createIndex(row, column, &node->child(row));
     }
     else
     {
@@ -39,8 +39,8 @@ QModelIndex rule_model_t::parent(const QModelIndex& child) const
 {
     if (child.isValid())
     {
-        auto node = static_cast<base_node_t*>(child.internalPointer());
-        return createIndex(node->index(), 0, node->parent());
+        if (auto node = static_cast<base_node_t*>(child.internalPointer()); node)
+            return createIndex(node->index(), 0, node->parent());
     }
 
     return {};
@@ -50,8 +50,10 @@ int rule_model_t::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
     {
-        auto node = static_cast<base_node_t*>(parent.internalPointer());
-        return node->child_count();
+        if (auto node = static_cast<base_node_t*>(parent.internalPointer()); node)
+            return node->child_count();
+        else
+            return 0;
     }
     else if (_root)
     {
@@ -230,10 +232,10 @@ QVariant rule_model_t::data_for_rule_node(
 
 QVariant rule_model_t::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid())
+    auto node = static_cast<base_node_t*>(index.internalPointer());
+    if (!node)
         return {};
 
-    auto node = static_cast<base_node_t*>(index.internalPointer());
     switch (node->type())
     {
     case node_type_t::base:
@@ -394,10 +396,10 @@ bool rule_model_t::set_data_for_rule_node(
 
 bool rule_model_t::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-    if (!index.isValid())
+    auto node = static_cast<base_node_t*>(index.internalPointer());
+    if (!node)
         return false;
 
-    auto node = static_cast<base_node_t*>(index.internalPointer());
     switch (node->type())
     {
     case node_type_t::base:
@@ -460,10 +462,10 @@ Qt::ItemFlags rule_model_t::flags_for_rule_node(const rule_node_t& node, const Q
 
 Qt::ItemFlags rule_model_t::flags(const QModelIndex& index) const
 {
-    if (!index.isValid())
+    auto node = static_cast<base_node_t*>(index.internalPointer());
+    if (!node)
         return Qt::NoItemFlags;
 
-    auto node = static_cast<base_node_t*>(index.internalPointer());
     switch (node->type())
     {
     case node_type_t::base:
