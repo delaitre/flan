@@ -11,7 +11,7 @@ using namespace flan;
 
 namespace
 {
-std::unique_ptr<base_node_t> get_initial_rules()
+base_node_uniq_t get_initial_rules()
 {
     base_node_uniq_t root;
 
@@ -53,8 +53,7 @@ std::unique_ptr<base_node_t> get_initial_rules()
         group_general,
         matching_rule_t{"Anything", QRegularExpression{".*"}, filtering_behaviour_t::none, false});
 #else
-    auto settings = get_default_settings();
-    root = load_rules_from_settings(settings);
+    root = load_rules_from_json(get_default_settings_file());
 #endif
 
     return root;
@@ -101,10 +100,6 @@ QString get_initial_text_log()
 
 int main(int argc, char** argv)
 {
-    QCoreApplication::setOrganizationName("flan");
-    QCoreApplication::setOrganizationDomain("flan");
-    QCoreApplication::setApplicationName("flan");
-
     QApplication app(argc, argv);
 
     rule_model_t rule_model;
@@ -112,8 +107,7 @@ int main(int argc, char** argv)
     rule_model.set_root(rule_root.get());
 
     app.connect(&app, &QApplication::aboutToQuit, &app, [rule_root = rule_root.get()]() {
-        auto settings = get_default_settings();
-        save_rules_to_settings(*rule_root, settings);
+        save_rules_to_json(*rule_root, get_default_settings_file());
     });
 
     auto main_widget = new main_widget_t;
