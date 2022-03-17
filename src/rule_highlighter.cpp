@@ -1,5 +1,6 @@
 
 #include <flan/rule_highlighter.hpp>
+#include <array>
 
 namespace flan
 {
@@ -16,9 +17,16 @@ void rule_highlighter_t::set_rules(QVector<matching_rule_t> rules)
 
 void rule_highlighter_t::highlightBlock(const QString& text)
 {
+    static std::array highlight_colors{
+        QColor{Qt::red},
+        QColor{Qt::green},
+        QColor{Qt::blue},
+        QColor{Qt::cyan},
+        QColor{Qt::magenta},
+        QColor{Qt::yellow},
+        QColor{Qt::gray}};
+
     QTextCharFormat class_format;
-    class_format.setFontWeight(QFont::Bold);
-    class_format.setForeground(Qt::darkMagenta);
 
     for (const auto& rule: _rules)
     {
@@ -33,8 +41,12 @@ void rule_highlighter_t::highlightBlock(const QString& text)
             // Highlight each capture individually, or if no specific capture group was specified
             // highlight the whole match.
             int start_index = (match.lastCapturedIndex() == 0) ? 0 : 1;
-            for (int i = start_index; i <= match.lastCapturedIndex(); ++i)
+            for (int i = start_index, color_index = 0; i <= match.lastCapturedIndex();
+                 ++i, ++color_index)
+            {
+                class_format.setForeground(highlight_colors[color_index % highlight_colors.size()]);
                 setFormat(match.capturedStart(i), match.capturedLength(i), class_format);
+            }
         }
     }
 }
