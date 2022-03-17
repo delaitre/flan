@@ -52,7 +52,7 @@ void log_widget_t::mouseMoveEvent(QMouseEvent* event)
                 if (match.capturedStart(i) <= position_in_block
                     && position_in_block < match.capturedEnd(i))
                 {
-                    tooltip_text = rule.name;
+                    tooltip_text = rule.tooltip;
                 }
             }
         }

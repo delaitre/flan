@@ -35,6 +35,9 @@ struct matching_rule_t
 
     //! Indicates if the matching content should be highlighted.
     bool highlight_match = false;
+
+    //! A tooltip to display when the rule matches.
+    QString tooltip;
 };
 
 inline bool operator==(const matching_rule_t& lhs, const matching_rule_t& rhs)

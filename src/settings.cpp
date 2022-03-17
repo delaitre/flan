@@ -24,6 +24,7 @@ static const auto settings_key_rule_behaviour_none{"none"};
 static const auto settings_key_rule_behaviour_remove_line{"remove_line"};
 static const auto settings_key_rule_behaviour_keep_line{"keep_line"};
 static const auto settings_key_rule_highlight_match{"highlight_match"};
+static const auto settings_key_rule_tooltip{"tooltip"};
 
 //! Cast an enum class value \a to its underlying type
 template <typename Enum>
@@ -80,6 +81,7 @@ QVariant rule_to_variant(const base_node_t& node)
             break;
         }
         map[settings_key_rule_highlight_match] = rule.highlight_match;
+        map[settings_key_rule_tooltip] = rule.tooltip;
         break;
     }
     }
@@ -150,6 +152,7 @@ base_node_uniq_t rule_from_variant(const QVariant& variant)
         auto pattern = map.value(settings_key_rule_pattern).toString();
         auto behaviour = map.value(settings_key_rule_behaviour).toString();
         auto highlight = map.value(settings_key_rule_highlight_match).toBool();
+        auto tooltip = map.value(settings_key_rule_tooltip).toString();
         if (name.isEmpty() || pattern.isEmpty() || behaviour.isEmpty())
             return {};
 
@@ -163,8 +166,8 @@ base_node_uniq_t rule_from_variant(const QVariant& variant)
         else
             return {};
 
-        node = std::make_unique<rule_node_t>(
-            matching_rule_t{name, QRegularExpression{pattern}, filtering_behaviour, highlight});
+        node = std::make_unique<rule_node_t>(matching_rule_t{
+            name, QRegularExpression{pattern}, filtering_behaviour, highlight, tooltip});
     }
 
     auto children = map.value(settings_key_node_children);
