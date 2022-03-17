@@ -54,7 +54,7 @@ main_widget_t::main_widget_t(QWidget* parent)
 
 void main_widget_t::set_content(const QString& text)
 {
-    _log->set_content(text);
+    _log->setPlainText(text);
 }
 
 void main_widget_t::set_model(rule_model_t* model)
