@@ -1,10 +1,12 @@
 
 #include <flan/settings.hpp>
+#include <QColor>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QStandardPaths>
+#include <optional>
 
 namespace
 {
@@ -26,6 +28,17 @@ static const auto settings_key_rule_behaviour_keep_line{"keep_line"};
 static const auto settings_key_rule_highlight_match{"highlight_match"};
 static const auto settings_key_rule_tooltip{"tooltip"};
 
+static const auto settings_key_style_matches{"style_matches"};
+static const auto settings_key_style_foreground_color{"foreground_color"};
+static const auto settings_key_style_background_color{"background_color"};
+static const auto settings_key_style_underline_color{"underline_color"};
+static const auto settings_key_style_underline_style{"underline_style"};
+static const auto settings_key_style_underline_style_none{"none"};
+static const auto settings_key_style_underline_style_solid{"solid"};
+static const auto settings_key_style_underline_style_dash{"dash"};
+static const auto settings_key_style_underline_style_dot{"dot"};
+static const auto settings_key_style_underline_style_wave{"wave"};
+
 //! Cast an enum class value \a to its underlying type
 template <typename Enum>
 [[maybe_unused]] constexpr auto to_underlying(Enum e) noexcept
@@ -36,10 +49,19 @@ template <typename Enum>
 
 namespace flan
 {
-QString get_default_settings_file()
+QString get_default_settings_directory()
 {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    return QFileInfo{QDir{path}, "rules.json"}.filePath();
+    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+}
+
+QString get_default_settings_file_for_rules()
+{
+    return QFileInfo{QDir{get_default_settings_directory()}, "rules.json"}.filePath();
+}
+
+QString get_default_settings_file_for_styles()
+{
+    return QFileInfo{QDir{get_default_settings_directory()}, "styles.json"}.filePath();
 }
 
 QVariant rule_to_variant(const base_node_t& node)
@@ -215,5 +237,130 @@ base_node_uniq_t load_rules_from_json(QString file_path)
     file.close();
     auto variant = QJsonDocument::fromJson(json).toVariant();
     return rules_from_variant(variant);
+}
+
+QVariant style_to_variant(const matching_style_t& style)
+{
+    QVariantMap map;
+
+    if (style.foreground_color.isValid())
+        map[settings_key_style_foreground_color] = style.foreground_color.name(QColor::HexArgb);
+    if (style.background_color.isValid())
+        map[settings_key_style_background_color] = style.background_color.name(QColor::HexArgb);
+    if (style.underline_color.isValid())
+        map[settings_key_style_underline_color] = style.underline_color.name(QColor::HexArgb);
+
+    QString underline_style_name;
+    switch (style.underline_style)
+    {
+    case underline_style_t::none:
+        // Don't actually write the style if it is none.
+        break;
+    case underline_style_t::solid:
+        underline_style_name = settings_key_style_underline_style_solid;
+        break;
+    case underline_style_t::dash:
+        underline_style_name = settings_key_style_underline_style_dash;
+        break;
+    case underline_style_t::dot:
+        underline_style_name = settings_key_style_underline_style_dot;
+        break;
+    case underline_style_t::wave:
+        underline_style_name = settings_key_style_underline_style_wave;
+        break;
+    }
+
+    if (!underline_style_name.isEmpty())
+        map[settings_key_style_underline_style] = underline_style_name;
+
+    return {map};
+}
+
+QVariant styles_to_variant(const matching_style_list_t& styles)
+{
+    QVariantList styles_variant_list;
+    for (const auto& style: styles)
+        styles_variant_list.append(style_to_variant(style));
+
+    QVariantMap root;
+    root[settings_key_style_matches] = styles_variant_list;
+
+    return {root};
+}
+
+void save_styles_to_json(const matching_style_list_t& styles, QString file_path)
+{
+    auto variant = styles_to_variant(styles);
+    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
+    QFile file{file_path};
+    file.open(QIODevice::WriteOnly);
+    file.write(json);
+    file.close();
+}
+
+std::optional<matching_style_t> style_from_variant(const QVariant& variant)
+{
+    if (!variant.canConvert<QVariantMap>())
+        return {};
+    auto map = variant.value<QVariantMap>();
+
+    auto foreground = map.value(settings_key_style_foreground_color).toString();
+    auto background = map.value(settings_key_style_background_color).toString();
+    auto underline_color = map.value(settings_key_style_underline_color).toString();
+    auto underline_style = map.value(settings_key_style_underline_style).toString();
+
+    matching_style_t style;
+
+    style.foreground_color = QColor{foreground};
+    style.background_color = QColor{background};
+    style.underline_color = QColor{underline_color};
+
+    if (underline_style == settings_key_style_underline_style_none)
+        style.underline_style = underline_style_t::none;
+    else if (underline_style == settings_key_style_underline_style_solid)
+        style.underline_style = underline_style_t::solid;
+    else if (underline_style == settings_key_style_underline_style_dash)
+        style.underline_style = underline_style_t::dash;
+    else if (underline_style == settings_key_style_underline_style_dot)
+        style.underline_style = underline_style_t::dot;
+    else if (underline_style == settings_key_style_underline_style_wave)
+        style.underline_style = underline_style_t::wave;
+    else
+        style.underline_style = underline_style_t::none;
+
+    return style;
+}
+
+matching_style_list_t styles_from_variant(const QVariant& variant)
+{
+    // Top level variant should contain a map with an entry containing a list of styles.
+    if (!variant.canConvert<QVariantMap>())
+        return {};
+    auto map = variant.value<QVariantMap>();
+
+    // Extract the list of style matches.
+    auto style_matches_variant = map.value(settings_key_style_matches);
+    if (!style_matches_variant.canConvert<QVariantList>())
+        return {};
+    auto style_matches_variant_list = style_matches_variant.value<QVariantList>();
+
+    matching_style_list_t style_matches;
+    for (const auto& style_match_variant: style_matches_variant_list)
+    {
+        if (auto style = style_from_variant(style_match_variant))
+            style_matches.push_back(*style);
+    }
+
+    return style_matches;
+}
+
+matching_style_list_t load_styles_from_json(QString file_path)
+{
+    QFile file{file_path};
+    file.open(QIODevice::ReadOnly);
+    auto json = file.readAll();
+    file.close();
+    auto variant = QJsonDocument::fromJson(json).toVariant();
+    return styles_from_variant(variant);
 }
 } // namespace flan

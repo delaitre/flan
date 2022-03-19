@@ -2,6 +2,7 @@
 #pragma once
 
 #include <flan/matching_rule.hpp>
+#include <flan/style.hpp>
 #include <QPlainTextEdit>
 
 namespace flan
@@ -23,6 +24,8 @@ public:
 public slots:
 
     void set_rules(QVector<matching_rule_t> rules);
+
+    void set_highlighting_style(matching_style_list_t styles);
 
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;

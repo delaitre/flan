@@ -75,4 +75,9 @@ void main_widget_t::set_model(rule_model_t* model)
     else
         _log->set_rules({});
 }
+
+void main_widget_t::set_highlighting_style(matching_style_list_t styles)
+{
+    _log->set_highlighting_style(std::move(styles));
+}
 } // namespace flan

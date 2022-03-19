@@ -27,6 +27,11 @@ void log_widget_t::set_rules(QVector<matching_rule_t> rules)
     _highlighter->set_rules(_rules);
 }
 
+void log_widget_t::set_highlighting_style(matching_style_list_t styles)
+{
+    _highlighter->set_style_list(std::move(styles));
+}
+
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
 {
     // Show a tooltip for the match under the mouse pointer.

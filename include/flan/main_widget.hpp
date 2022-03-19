@@ -2,6 +2,7 @@
 #pragma once
 
 #include <flan/matching_rule.hpp>
+#include <flan/style.hpp>
 #include <QWidget>
 
 namespace flan
@@ -21,6 +22,7 @@ public slots:
 
     void set_content(const QString& text);
     void set_model(rule_model_t* model);
+    void set_highlighting_style(matching_style_list_t styles);
 
 private:
     rule_tree_widget_t* _rules = nullptr;

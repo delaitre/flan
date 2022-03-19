@@ -27,6 +27,8 @@ set(SOURCES
     src/settings.cpp
     include/flan/rule_set.hpp
     src/rule_set.cpp
+    include/flan/style.hpp
+    src/style.cpp
 )
 
 add_library(flan SHARED ${SOURCES})

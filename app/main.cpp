@@ -53,7 +53,7 @@ base_node_uniq_t get_initial_rules()
         group_general,
         matching_rule_t{"Anything", QRegularExpression{".*"}, filtering_behaviour_t::none, false});
 #else
-    root = load_rules_from_json(get_default_settings_file());
+    root = load_rules_from_json(get_default_settings_file_for_rules());
 #endif
 
     return root;
@@ -107,12 +107,18 @@ int main(int argc, char** argv)
     rule_model.set_root(rule_root.get());
 
     app.connect(&app, &QApplication::aboutToQuit, &app, [rule_root = rule_root.get()]() {
-        save_rules_to_json(*rule_root, get_default_settings_file());
+        save_rules_to_json(*rule_root, get_default_settings_file_for_rules());
     });
 
     auto main_widget = new main_widget_t;
     main_widget->set_model(&rule_model);
     main_widget->set_content(get_initial_text_log());
+
+    if (auto styles = load_styles_from_json(get_default_settings_file_for_styles());
+        !styles.empty())
+    {
+        main_widget->set_highlighting_style(std::move(styles));
+    }
 
     QMainWindow main_window;
     main_window.setWindowIcon(QIcon(":/icons/application"));
