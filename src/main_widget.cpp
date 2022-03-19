@@ -11,12 +11,12 @@ namespace flan
 {
 namespace
 {
-QVector<matching_rule_t> get_rules_from_node(const base_node_t* node)
+matching_rule_list_t get_rules_from_node(const base_node_t* node)
 {
     if (!node)
         return {};
 
-    QVector<matching_rule_t> rules;
+    matching_rule_list_t rules;
 
     node->visit([&rules](const base_node_t& node) {
         switch (node.type())
@@ -26,7 +26,7 @@ QVector<matching_rule_t> get_rules_from_node(const base_node_t* node)
         case node_type_t::group:
             break;
         case node_type_t::rule:
-            rules.append(static_cast<const rule_node_t&>(node).rule());
+            rules.push_back(static_cast<const rule_node_t&>(node).rule());
             break;
         }
     });

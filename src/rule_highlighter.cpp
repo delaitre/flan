@@ -44,7 +44,7 @@ rule_highlighter_t::rule_highlighter_t(QTextDocument* parent)
 {
 }
 
-void rule_highlighter_t::set_rules(QVector<matching_rule_t> rules)
+void rule_highlighter_t::set_rules(matching_rule_list_t rules)
 {
     _rules = std::move(rules);
     rehighlight();

@@ -23,7 +23,7 @@ public:
 
 public slots:
 
-    void set_rules(QVector<matching_rule_t> rules);
+    void set_rules(matching_rule_list_t rules);
 
     void set_highlighting_style(matching_style_list_t styles);
 
@@ -36,6 +36,6 @@ private slots:
 
 private:
     rule_highlighter_t* _highlighter = nullptr;
-    QVector<matching_rule_t> _rules;
+    matching_rule_list_t _rules;
 };
 } // namespace flan

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QRegularExpression>
+#include <vector>
 
 namespace flan
 {
@@ -39,6 +40,8 @@ struct matching_rule_t
     //! A tooltip to display when the rule matches.
     QString tooltip;
 };
+
+using matching_rule_list_t = std::vector<matching_rule_t>;
 
 inline bool operator==(const matching_rule_t& lhs, const matching_rule_t& rhs)
 {

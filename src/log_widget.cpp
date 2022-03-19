@@ -21,7 +21,7 @@ log_widget_t::log_widget_t(const QString& text, QWidget* parent)
     setMouseTracking(true);
 }
 
-void log_widget_t::set_rules(QVector<matching_rule_t> rules)
+void log_widget_t::set_rules(matching_rule_list_t rules)
 {
     _rules = std::move(rules);
     _highlighter->set_rules(_rules);
