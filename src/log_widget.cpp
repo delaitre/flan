@@ -35,7 +35,11 @@ void log_widget_t::set_highlighting_style(matching_style_list_t styles)
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
 {
     // Show a tooltip for the match under the mouse pointer.
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QTextCursor cursor = cursorForPosition(event->position().toPoint());
+#else
+    QTextCursor cursor = cursorForPosition(event->pos());
+#endif
 
     int position_in_block = cursor.positionInBlock();
     QString text = cursor.block().text();
@@ -66,7 +70,12 @@ void log_widget_t::mouseMoveEvent(QMouseEvent* event)
             break;
     }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     QToolTip::showText(event->globalPosition().toPoint(), tooltip_text, this);
+#else
+    QToolTip::showText(event->globalPos(), tooltip_text, this);
+#endif
+
     event->accept();
 }
 

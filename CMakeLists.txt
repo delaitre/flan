@@ -9,7 +9,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+# Check if a versionless version of Qt is already defined. If so, use it, otherwise search for Qt6.
+# This allows projects using flan to search for their own Qt version first and flan will happily use
+# the same.
+if(NOT TARGET Qt::Core)
+    find_package(Qt6 REQUIRED COMPONENTS Widgets)
+endif()
 
 set(SOURCES
     include/flan/main_widget.hpp
@@ -34,7 +39,7 @@ set(SOURCES
 add_library(flan SHARED ${SOURCES})
 target_include_directories(flan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(flan PUBLIC Qt6::Widgets)
+target_link_libraries(flan PUBLIC Qt::Widgets)
 
 option(FLAN_BUILD_APP "Build the flan application" TRUE)
 
