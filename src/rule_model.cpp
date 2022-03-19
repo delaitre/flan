@@ -92,7 +92,11 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             switch (role)
             {
             case Qt::DisplayRole:
-                return tr("Remove");
+                return tr("-");
+            case Qt::TextAlignmentRole:
+                return Qt::AlignCenter;
+            case Qt::ToolTipRole:
+                return tr("Line with a match will be marked for removal.");
             default:
                 return {};
             }
@@ -102,7 +106,11 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             switch (role)
             {
             case Qt::DisplayRole:
-                return tr("Keep");
+                return tr("+");
+            case Qt::TextAlignmentRole:
+                return Qt::AlignCenter;
+            case Qt::ToolTipRole:
+                return tr("Line with a match will be marked for keeping.");
             default:
                 return {};
             }
@@ -112,7 +120,11 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             switch (role)
             {
             case Qt::DisplayRole:
-                return tr("Highlight");
+                return tr("^");
+            case Qt::TextAlignmentRole:
+                return Qt::AlignCenter;
+            case Qt::ToolTipRole:
+                return tr("Match will be highlighted");
             default:
                 return {};
             }
