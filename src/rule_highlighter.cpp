@@ -61,15 +61,18 @@ void rule_highlighter_t::highlightBlock(const QString& text)
     if (_styles.empty())
         return;
 
-    for (const auto& rule: _rules)
+    // Iterator over the rules in reverse order to keep the first rule as highest priority.
+    for (auto rule_it = std::rbegin(_rules); rule_it != std::rend(_rules); ++rule_it)
     {
+        const auto& rule = *rule_it;
+
         if (!rule.highlight_match)
             continue;
 
-        QRegularExpressionMatchIterator it = rule.rule.globalMatch(text);
-        while (it.hasNext())
+        QRegularExpressionMatchIterator match_it = rule.rule.globalMatch(text);
+        while (match_it.hasNext())
         {
-            QRegularExpressionMatch match = it.next();
+            QRegularExpressionMatch match = match_it.next();
 
             // Highlight each capture individually, or if no specific capture group was specified
             // highlight the whole match.
