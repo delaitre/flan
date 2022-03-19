@@ -123,6 +123,7 @@ int main(int argc, char** argv)
     QMainWindow main_window;
     main_window.setWindowIcon(QIcon(":/icons/application"));
     main_window.setCentralWidget(main_widget);
+    main_window.resize(1200, 700);
     main_window.show();
 
     return app.exec();

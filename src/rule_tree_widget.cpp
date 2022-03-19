@@ -14,6 +14,8 @@ rule_tree_widget_t::rule_tree_widget_t(QWidget* parent)
     auto main_layout = new QVBoxLayout;
     main_layout->addWidget(_tree);
     setLayout(main_layout);
+
+    resize(400, 600);
 }
 
 rule_model_t* rule_tree_widget_t::model() const
