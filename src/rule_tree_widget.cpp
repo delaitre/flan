@@ -23,6 +23,7 @@ rule_model_t* rule_tree_widget_t::model() const
 
 void rule_tree_widget_t::set_model(rule_model_t* model)
 {
+    bool was_empty = (!_tree->model() || (_tree->model()->rowCount() == 0));
     _tree->setModel(model);
 
     if (model)
@@ -44,6 +45,9 @@ void rule_tree_widget_t::set_model(rule_model_t* model)
         header->resizeSection(rule_model_t::remove_column_index, biggest_section_size);
         header->resizeSection(rule_model_t::keep_column_index, biggest_section_size);
         header->resizeSection(rule_model_t::highlight_column_index, biggest_section_size);
+
+        if (was_empty)
+            _tree->expandAll();
     }
 }
 } // namespace flan
