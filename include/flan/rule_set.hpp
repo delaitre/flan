@@ -96,12 +96,14 @@ public:
 
     node_type_t type() const { return _type; }
 
-    template <typename Functor>
-    void visit(Functor visitor) const
+    template <typename PreFunctor, typename PostFunctor>
+    void visit(PreFunctor pre_visitor, PostFunctor post_visitor) const
     {
-        visitor(*this);
-        std::for_each(
-            _children.begin(), _children.end(), [&](auto& child) { child->visit(visitor); });
+        pre_visitor(*this);
+        std::for_each(_children.begin(), _children.end(), [&](auto& child) {
+            child->visit(pre_visitor, post_visitor);
+        });
+        post_visitor(*this);
     }
 
 private:

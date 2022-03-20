@@ -18,18 +18,22 @@ matching_rule_list_t get_rules_from_node(const base_node_t* node)
 
     matching_rule_list_t rules;
 
-    node->visit([&rules](const base_node_t& node) {
-        switch (node.type())
-        {
-        case node_type_t::base:
-            [[fallthrough]];
-        case node_type_t::group:
-            break;
-        case node_type_t::rule:
-            rules.push_back(static_cast<const rule_node_t&>(node).rule());
-            break;
-        }
-    });
+    // Apply the rules of the children first, then the parent.
+    // This is because often parents have generic rules while children have more specific ones.
+    node->visit(
+        [](auto&) {},
+        [&rules](const base_node_t& node) {
+            switch (node.type())
+            {
+            case node_type_t::base:
+                [[fallthrough]];
+            case node_type_t::group:
+                break;
+            case node_type_t::rule:
+                rules.push_back(static_cast<const rule_node_t&>(node).rule());
+                break;
+            }
+        });
 
     return rules;
 }
@@ -65,7 +69,10 @@ void main_widget_t::set_model(rule_model_t* model)
     if (model)
     {
         connect(model, &rule_model_t::dataChanged, this, [this, model]() {
-            _log->set_rules(get_rules_from_node(model->root()));
+            if (model)
+                _log->set_rules(get_rules_from_node(model->root()));
+            else
+                _log->set_rules({});
         });
     }
 
