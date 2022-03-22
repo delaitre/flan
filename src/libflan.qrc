@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="pcre_cheatsheet">assets/pcre_cheatsheet.html</file>
+    </qresource>
+</RCC>

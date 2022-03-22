@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>PCRE Regular Expression Cheatsheet</title>
+  <style type="text/css">
+    * {
+      font-size: 14px;
+    }
+    .note {
+      font-style: italic;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 0;
+      margin-left: 0;
+      margin-bottom: 5px;
+      margin-right: 0;
+    }
+    table.odd tr.odd, table.even tr.odd {
+      color: #333333;
+      background-color: #ffffff;
+    }
+    table.odd tr.even, table.even tr.even {
+      color: #333333;
+      background-color: #d0e0e7;
+    }
+    table tr.last td {
+      border-bottom: 2px solid #555566;
+    }
+    table th {
+      color: #d4d4d9;
+      background-color: #555566;
+      border-left: 2px solid #555566;
+      border-right: 2px solid #555566;
+      padding: 6px;
+    }
+    table td {
+      vertical-align: center;
+      padding-top: 4px;
+      padding-left: 6px;
+      padding-bottom: 4px;
+      padding-right: 6px;
+      border-left: 0px;
+      border-right: 2px solid #555566;
+    }
+    table td.regex {
+      font-family: monospace;
+      border-left: 2px solid #555566;
+      border-right: 0px;
+    }
+    table td.note {
+      border-left: 2px solid #555566;
+      border-right: 2px solid #555566;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <table class="odd">
+      <tbody>
+        <tr>
+          <th colspan="2">Basics</th>
+          <th colspan="2">Quantifiers</th>
+          <th colspan="2">Special Characters</th>
+          <th colspan="2">Flags</th>
+        </tr>
+        <tr class="odd">
+          <td class="regex">.</td>
+          <td>Any character except newline</td>
+          <td class="regex">*</td>
+          <td>0 or more</td>
+          <td class="regex">\n</td>
+          <td>Newline</td>
+          <td class="regex">i</td>
+          <td>Ignore case</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">a</td>
+          <td>The character a</td>
+          <td class="regex">+</td>
+          <td>1 or more</td>
+          <td class="regex">\r</td>
+          <td>Carriage return</td>
+          <td class="regex">m</td>
+          <td>^ and $ match start and end of line</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">ab</td>
+          <td>The string ab</td>
+          <td class="regex">?</td>
+          <td>0 or 1</td>
+          <td class="regex">\t</td>
+          <td>Tab</td>
+          <td class="regex">s</td>
+          <td>. matches newline as well</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">a|b</td>
+          <td>a or b</td>
+          <td class="regex">{2}</td>
+          <td>Exactly 2</td>
+          <td class="regex">\0</td>
+          <td>Null character</td>
+          <td class="regex">x</td>
+          <td>Allow spaces and comments</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">a*</td>
+          <td>0 or more a's</td>
+          <td class="regex">{2, 5}</td>
+          <td>Between 2 and 5</td>
+          <td class="regex">\YYY</td>
+          <td>Octal character YYY</td>
+          <td class="regex">J</td>
+          <td>Duplicate group names allowed</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">\</td>
+          <td>Escapes a special character</td>
+          <td class="regex">{2,}</td>
+          <td>2 or more</td>
+          <td class="regex">\xYY</td>
+          <td>Hexadecimal character YY</td>
+          <td class="regex">U</td>
+          <td>Ungreedy quantifiers</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex"></td>
+          <td></td>
+          <td colspan="2" class="note">Default is greedy. Append ? for reluctant.</td>
+          <td class="regex">\x{YY}</td>
+          <td>Hexadecimeal character YY</td>
+          <td class="regex">(?iLmsux)</td>
+          <td>Set flags within regex</td>
+        </tr>
+        <tr class="even last">
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex">\cY</td>
+          <td>Control character Y</td>
+          <td class="regex"></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="odd">
+      <tbody>
+        <tr>
+          <th colspan="2">Groups</th>
+          <th colspan="2">Character Classes</th>
+          <th colspan="2">Posix Classes</th>
+          <th colspan="2">Assertions</th>
+        </tr>
+        <tr class="odd">
+          <td class="regex">(...)</td>
+          <td>Capturing group</td>
+          <td class="regex">[ab-d]</td>
+          <td>One character of: a, b, c, d</td>
+          <td class="regex">[:alnum:]</td>
+          <td>Letters and digits</td>
+          <td class="regex">^</td>
+          <td>Start of string</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">(?P&lt;Y&gt;...)</td>
+          <td>Capturing group named Y</td>
+          <td class="regex">[^ab-d]</td>
+          <td>One character except: a, b, c, d</td>
+          <td class="regex">[:alpha:]</td>
+          <td>Letters</td>
+          <td class="regex">\A</td>
+          <td>Start of string, ignores m flag</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">(?:...)</td>
+          <td>Non-capturing group</td>
+          <td class="regex">[\b]</td>
+          <td>Backspace character</td>
+          <td class="regex">[:ascii:]</td>
+          <td>Ascii codes 0 - 127</td>
+          <td class="regex">$</td>
+          <td>End of string</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">(?&gt;...)</td>
+          <td>Atomic group</td>
+          <td class="regex">\d</td>
+          <td>One digit</td>
+          <td class="regex">[:blank:]</td>
+          <td>Space or tab only</td>
+          <td class="regex">\Z</td>
+          <td>End of string, ignores m flag</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">(?|...)</td>
+          <td>Duplicate group numbers</td>
+          <td class="regex">\D</td>
+          <td>One non-digit</td>
+          <td class="regex">[:cntrl:]</td>
+          <td>Control characters</td>
+          <td class="regex">\b</td>
+          <td>Word boundary</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">\Y</td>
+          <td>Match the Y'th captured group</td>
+          <td class="regex">\s</td>
+          <td>One whitespace</td>
+          <td class="regex">[:digit:]</td>
+          <td>Decimal digits</td>
+          <td class="regex">\B</td>
+          <td>Non-word boundary</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">(?P=Y)</td>
+          <td>Match the named group Y</td>
+          <td class="regex">\S</td>
+          <td>One non-whitespace</td>
+          <td class="regex">[:graph:]</td>
+          <td>Visible characters, except space</td>
+          <td class="regex">\G</td>
+          <td>Start of match</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">(?R)</td>
+          <td>Recurse into entire pattern</td>
+          <td class="regex">\w</td>
+          <td>One word character</td>
+          <td class="regex">[:lower:]</td>
+          <td>Lowercase letters</td>
+          <td class="regex">(?=...)</td>
+          <td>Positive lookahead</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">(?Y)</td>
+          <td>Recurse into numbered group Y</td>
+          <td class="regex">\W</td>
+          <td>One non-word character</td>
+          <td class="regex">[:print:]</td>
+          <td>Visible characters</td>
+          <td class="regex">(?!...)</td>
+          <td>Negative lookahead</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">(?&amp;Y)</td>
+          <td>Recurse into named group Y</td>
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex">[:punct:]</td>
+          <td>Visible punctuation characters</td>
+          <td class="regex">(?&lt;=...)</td>
+          <td>Positive lookbehind</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">\g{Y}</td>
+          <td>Match the named or numbered group Y</td>
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex">[:space:]</td>
+          <td>Whitespace</td>
+          <td class="regex">(?&lt;!...)</td>
+          <td>Negative lookbehind</td>
+        </tr>
+        <tr class="even">
+          <td class="regex">\g&lt;Y&gt;</td>
+          <td>Recurse into named or numbered group Y</td>
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex">[:upper:]</td>
+          <td>Uppercase letters</td>
+          <td class="regex">(?()|)</td>
+          <td>Conditional</td>
+        </tr>
+        <tr class="odd">
+          <td class="regex">(?#...)</td>
+          <td>Comment</td>
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex">[:word:]</td>
+          <td>Word characters</td>
+          <td class="regex"></td>
+          <td></td>
+        </tr>
+        <tr class="even last">
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex"></td>
+          <td></td>
+          <td class="regex">[:xdigit:]</td>
+          <td>Hexadecimal digits</td>
+          <td class="regex"></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

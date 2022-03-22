@@ -29,7 +29,10 @@ QModelIndex rule_model_t::index(int row, int column, const QModelIndex& parent) 
     else
     {
         assert(_root);
-        return createIndex(row, column, &_root->child(row));
+        if (row >= 0 && row < _root->child_count())
+            return createIndex(row, column, &_root->child(row));
+        else
+            return {};
     }
 
     return {};
@@ -68,7 +71,7 @@ int rule_model_t::rowCount(const QModelIndex& parent) const
 int rule_model_t::columnCount(const QModelIndex& parent) const
 {
     (void)parent;
-    return 4;
+    return column_count;
 }
 
 QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int role) const
@@ -83,6 +86,34 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             {
             case Qt::DisplayRole:
                 return tr("Name");
+            case Qt::ToolTipRole:
+                return tr("User friendly name of the rule or group");
+            default:
+                return {};
+            }
+
+            return {};
+        case tooltip_column_index:
+            switch (role)
+            {
+            case Qt::DisplayRole:
+                return tr("Tooltip");
+            case Qt::ToolTipRole:
+                return tr(
+                    "Text used in the tooltip when the mouse pointer is over a matched pattern");
+            default:
+                return {};
+            }
+
+            return {};
+        case pattern_column_index:
+            switch (role)
+            {
+            case Qt::DisplayRole:
+                return tr("Pattern");
+            case Qt::ToolTipRole:
+                return tr("Pattern used to check if the behaviour applies to a line, or to "
+                          "highlight matches");
             default:
                 return {};
             }
@@ -96,7 +127,7 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             case Qt::TextAlignmentRole:
                 return Qt::AlignCenter;
             case Qt::ToolTipRole:
-                return tr("Line with a match will be marked for removal.");
+                return tr("Line with a match will be marked for removal");
             default:
                 return {};
             }
@@ -110,7 +141,7 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             case Qt::TextAlignmentRole:
                 return Qt::AlignCenter;
             case Qt::ToolTipRole:
-                return tr("Line with a match will be marked for keeping.");
+                return tr("Line with a match will be marked for keeping");
             default:
                 return {};
             }
@@ -195,7 +226,34 @@ QVariant rule_model_t::data_for_rule_node(
         case Qt::EditRole:
             return node.rule().name;
         case Qt::ToolTipRole:
+            return tr("User friendly name of the rule");
+        default:
+            return {};
+        }
+        return {};
+    case tooltip_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            [[fallthrough]];
+        case Qt::EditRole:
             return node.rule().tooltip;
+        case Qt::ToolTipRole:
+            return tr("Text used in the tooltip when the mouse pointer is over a matched pattern");
+        default:
+            return {};
+        }
+        return {};
+    case pattern_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            [[fallthrough]];
+        case Qt::EditRole:
+            return node.rule().rule.pattern();
+        case Qt::ToolTipRole:
+            return tr("Pattern used to check if the behaviour applies to a line, or to highlight "
+                      "matches");
         default:
             return {};
         }
@@ -207,7 +265,7 @@ QVariant rule_model_t::data_for_rule_node(
             return (node.rule().behaviour == filtering_behaviour_t::remove_line) ? Qt::Checked :
                                                                                    Qt::Unchecked;
         case Qt::ToolTipRole:
-            return tr("Line with a match will be marked for removal.");
+            return tr("Line with a match will be marked for removal");
         default:
             return {};
         }
@@ -219,7 +277,7 @@ QVariant rule_model_t::data_for_rule_node(
             return (node.rule().behaviour == filtering_behaviour_t::keep_line) ? Qt::Checked :
                                                                                  Qt::Unchecked;
         case Qt::ToolTipRole:
-            return tr("Line with a match will be marked for keeping.");
+            return tr("Line with a match will be marked for keeping");
         default:
             return {};
         }
@@ -322,6 +380,40 @@ bool rule_model_t::set_data_for_rule_node(
         {
             auto rule = node.rule();
             rule.name = value.toString();
+            node.set_rule(std::move(rule));
+            emit dataChanged(index, index, QVector<int>{} << role);
+            return true;
+        }
+        default:
+            return false;
+        }
+        return false;
+    case tooltip_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            [[fallthrough]];
+        case Qt::EditRole:
+        {
+            auto rule = node.rule();
+            rule.tooltip = value.toString();
+            node.set_rule(std::move(rule));
+            emit dataChanged(index, index, QVector<int>{} << role);
+            return true;
+        }
+        default:
+            return false;
+        }
+        return false;
+    case pattern_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            [[fallthrough]];
+        case Qt::EditRole:
+        {
+            auto rule = node.rule();
+            rule.rule.setPattern(value.toString());
             node.set_rule(std::move(rule));
             emit dataChanged(index, index, QVector<int>{} << role);
             return true;
@@ -459,6 +551,10 @@ Qt::ItemFlags rule_model_t::flags_for_rule_node(const rule_node_t& node, const Q
     switch (index.column())
     {
     case name_column_index:
+        [[fallthrough]];
+    case tooltip_column_index:
+        [[fallthrough]];
+    case pattern_column_index:
         return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
     case remove_column_index:
         [[fallthrough]];

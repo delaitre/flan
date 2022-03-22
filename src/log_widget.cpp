@@ -61,7 +61,8 @@ void log_widget_t::mouseMoveEvent(QMouseEvent* event)
                 if (match.capturedStart(i) <= position_in_block
                     && position_in_block < match.capturedEnd(i))
                 {
-                    tooltip_text = rule.tooltip;
+                    // Use the rule tooltip if non empty, otherwise default to the rule name.
+                    tooltip_text = rule.tooltip.isEmpty() ? rule.name : rule.tooltip;
                 }
             }
         }

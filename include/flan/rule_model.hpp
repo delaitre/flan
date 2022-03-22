@@ -15,9 +15,12 @@ class rule_model_t : public QAbstractItemModel
 
 public:
     static constexpr int name_column_index = 0;
-    static constexpr int remove_column_index = 1;
-    static constexpr int keep_column_index = 2;
-    static constexpr int highlight_column_index = 3;
+    static constexpr int tooltip_column_index = 1;
+    static constexpr int pattern_column_index = 2;
+    static constexpr int remove_column_index = 3;
+    static constexpr int keep_column_index = 4;
+    static constexpr int highlight_column_index = 5;
+    static constexpr int column_count = 6;
 
 public:
     rule_model_t(QObject* parent = nullptr);

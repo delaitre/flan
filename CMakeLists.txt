@@ -34,6 +34,10 @@ set(SOURCES
     src/rule_set.cpp
     include/flan/style.hpp
     src/style.cpp
+    include/flan/rule_editor.hpp
+    src/rule_editor.cpp
+    include/flan/valid_regular_expression_validator.hpp
+    src/libflan.qrc
 )
 
 add_library(flan SHARED ${SOURCES})

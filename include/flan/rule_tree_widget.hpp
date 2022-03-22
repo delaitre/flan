@@ -8,6 +8,7 @@ class QTreeView;
 namespace flan
 {
 class rule_model_t;
+class rule_editor_t;
 
 class rule_tree_widget_t : public QWidget
 {
@@ -21,5 +22,6 @@ public:
 
 private:
     QTreeView* _tree = nullptr;
+    rule_editor_t* _rule_editor = nullptr;
 };
 } // namespace flan
