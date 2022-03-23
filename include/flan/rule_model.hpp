@@ -27,6 +27,21 @@ public:
 
     inline const base_node_t* root() const { return _root; }
 
+    //! Insert a new rule node before the \a row in the child items of the \a parent.
+    //!
+    //! Returns \c true if the rule is inserted; otherwise returns \c false.
+    bool insert_rule(int row, const QModelIndex& parent);
+
+    //! Insert a new goup node before the \a row in the child items of the \a parent.
+    //!
+    //! Returns \c true if the group is inserted; otherwise returns \c false.
+    bool insert_group(int row, const QModelIndex& parent);
+
+    //! Remove the node at \a row from the child of the \a parent.
+    //!
+    //! Returns \c true if the node was successfuly removed; otherwise returns \a false.
+    bool remove_node(int row, const QModelIndex& parent);
+
 public slots:
 
     void set_root(base_node_t* root);

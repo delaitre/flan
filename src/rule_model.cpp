@@ -37,6 +37,68 @@ base_node_t* rule_model_t::node_at(const QModelIndex& index) const
     return node;
 }
 
+bool rule_model_t::insert_rule(int row, const QModelIndex& parent)
+{
+    auto parent_node = node_at(parent);
+    if (row < 0 || row > parent_node->child_count())
+        return false;
+
+    auto node = std::make_unique<rule_node_t>(matching_rule_t{
+        tr("New rule"), QRegularExpression{""}, filtering_behaviour_t::none, false, QString{}});
+
+    if (parent.isValid())
+    {
+        beginInsertRows(index(parent.row(), 0, parent.parent()), row, row);
+        parent_node->insert_child(row, std::move(node));
+        endInsertRows();
+    }
+    else
+    {
+        beginInsertRows({}, row, row);
+        parent_node->insert_child(row, std::move(node));
+        endInsertRows();
+    }
+
+    return true;
+}
+
+bool rule_model_t::insert_group(int row, const QModelIndex& parent)
+{
+    auto parent_node = node_at(parent);
+    if (row < 0 || row > parent_node->child_count())
+        return false;
+
+    auto node = std::make_unique<group_node_t>(tr("New group"));
+
+    if (parent.isValid())
+    {
+        beginInsertRows(index(parent.row(), 0, parent.parent()), row, row);
+        parent_node->insert_child(row, std::move(node));
+        endInsertRows();
+    }
+    else
+    {
+        beginInsertRows({}, row, row);
+        parent_node->insert_child(row, std::move(node));
+        endInsertRows();
+    }
+
+    return true;
+}
+
+bool rule_model_t::remove_node(int row, const QModelIndex& parent)
+{
+    auto parent_node = node_at(parent);
+    if (row < 0 || row >= parent_node->child_count())
+        return false;
+
+    beginRemoveRows(index(parent.row(), 0, parent.parent()), row, row);
+    parent_node->remove_child(parent_node->child(row));
+    endRemoveRows();
+
+    return true;
+}
+
 QModelIndex rule_model_t::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))

@@ -48,6 +48,19 @@ public:
         return *raw;
     }
 
+    base_node_t& insert_child(int position, base_node_uniq_t child)
+    {
+        assert(child);
+        assert(!child->_parent);
+        assert(position >= 0);
+        assert(position <= child_count());
+
+        child->_parent = this;
+        auto raw = child.get();
+        _children.insert(_children.begin() + position, std::move(child));
+        return *raw;
+    }
+
     base_node_uniq_t remove_child(base_node_t& child)
     {
         assert(child._parent == this);
