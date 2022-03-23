@@ -295,7 +295,7 @@ QVariant rule_model_t::data_for_rule_node(
         case Qt::EditRole:
             return node.rule().name;
         case Qt::ToolTipRole:
-            return tr("User friendly name of the rule");
+            return node.rule().tooltip;
         default:
             return {};
         }
