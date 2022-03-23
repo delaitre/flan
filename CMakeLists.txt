@@ -45,6 +45,17 @@ target_include_directories(flan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(flan PUBLIC Qt::Widgets)
 
+option(FLAN_TEST_RULE_MODEL "Test the rule model as it is being exercised" FALSE)
+
+if(FLAN_TEST_RULE_MODEL)
+    if(NOT TARGET Qt::Test)
+        find_package(Qt6 REQUIRED COMPONENTS Test)
+    endif()
+
+    target_compile_definitions(flan PRIVATE FLAN_TEST_RULE_MODEL)
+    target_link_libraries(flan PRIVATE Qt::Test)
+endif()
+
 option(FLAN_BUILD_APP "Build the flan application" TRUE)
 
 if(FLAN_BUILD_APP)

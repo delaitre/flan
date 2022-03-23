@@ -42,6 +42,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
+    base_node_t* node_at(const QModelIndex& index) const;
+
     QVariant data_for_base_node(const base_node_t& node, const QModelIndex& index, int role) const;
     QVariant data_for_group_node(const group_node_t& node, const QModelIndex& index, int role)
         const;

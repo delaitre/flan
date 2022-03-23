@@ -2,11 +2,18 @@
 #include <flan/rule_model.hpp>
 #include <flan/rule_set.hpp>
 
+#ifdef FLAN_TEST_RULE_MODEL
+#include <QAbstractItemModelTester>
+#endif
+
 namespace flan
 {
 rule_model_t::rule_model_t(QObject* parent)
     : QAbstractItemModel{parent}
 {
+#ifdef FLAN_TEST_RULE_MODEL
+    new QAbstractItemModelTester{this, QAbstractItemModelTester::FailureReportingMode::Fatal, this};
+#endif
 }
 
 void rule_model_t::set_root(base_node_t* root)
@@ -19,53 +26,53 @@ void rule_model_t::set_root(base_node_t* root)
     endResetModel();
 }
 
+base_node_t* rule_model_t::node_at(const QModelIndex& index) const
+{
+    base_node_t* node = nullptr;
+    if (index.isValid())
+        node = static_cast<base_node_t*>(index.internalPointer());
+    else
+        node = _root;
+
+    return node;
+}
+
 QModelIndex rule_model_t::index(int row, int column, const QModelIndex& parent) const
 {
-    if (parent.isValid())
-    {
-        if (auto node = static_cast<base_node_t*>(parent.internalPointer()); node)
-            return createIndex(row, column, &node->child(row));
-    }
-    else
-    {
-        assert(_root);
-        if (row >= 0 && row < _root->child_count())
-            return createIndex(row, column, &_root->child(row));
-        else
-            return {};
-    }
+    if (!hasIndex(row, column, parent))
+        return {};
 
-    return {};
+    auto node = node_at(parent);
+    if (row < 0 || row >= node->child_count())
+        return {};
+
+    return createIndex(row, column, &node->child(row));
 }
 
 QModelIndex rule_model_t::parent(const QModelIndex& child) const
 {
-    if (child.isValid())
-    {
-        if (auto node = static_cast<base_node_t*>(child.internalPointer()); node)
-            return createIndex(node->index(), 0, node->parent());
-    }
+    if (!child.isValid())
+        return {};
 
-    return {};
+    auto node = node_at(child);
+    auto parent_node = node->parent();
+
+    if (!parent_node || parent_node == _root)
+        return {};
+
+    return createIndex(parent_node->index(), 0, parent_node);
 }
 
 int rule_model_t::rowCount(const QModelIndex& parent) const
 {
-    if (parent.isValid())
-    {
-        if (auto node = static_cast<base_node_t*>(parent.internalPointer()); node)
-            return node->child_count();
-        else
-            return 0;
-    }
-    else if (_root)
-    {
-        return _root->child_count();
-    }
-    else
-    {
+    if (parent.column() > 0)
         return 0;
-    }
+
+    auto node = node_at(parent);
+    if (!node)
+        return 0;
+
+    return node->child_count();
 }
 
 int rule_model_t::columnCount(const QModelIndex& parent) const
