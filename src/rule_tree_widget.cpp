@@ -1,16 +1,16 @@
 
 #include <flan/rule_editor.hpp>
 #include <flan/rule_model.hpp>
+#include <flan/rule_tree_view.hpp>
 #include <flan/rule_tree_widget.hpp>
 #include <QHeaderView>
-#include <QTreeView>
 #include <QVBoxLayout>
 
 namespace flan
 {
 rule_tree_widget_t::rule_tree_widget_t(QWidget* parent)
     : QWidget{parent}
-    , _tree{new QTreeView}
+    , _tree{new tree_view_t}
     , _rule_editor{new rule_editor_t}
 {
     auto main_layout = new QVBoxLayout;

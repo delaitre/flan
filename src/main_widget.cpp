@@ -66,21 +66,25 @@ void main_widget_t::set_model(rule_model_t* model)
     if (_rules->model())
         disconnect(_rules->model(), nullptr, this, nullptr);
 
+    auto update_rules = [this, model]() {
+        if (model)
+            _log->set_rules(get_rules_from_node(model->root()));
+        else
+            _log->set_rules({});
+    };
+
     if (model)
     {
-        connect(model, &rule_model_t::dataChanged, this, [this, model]() {
-            if (model)
-                _log->set_rules(get_rules_from_node(model->root()));
-            else
-                _log->set_rules({});
-        });
+        connect(model, &rule_model_t::dataChanged, this, update_rules);
+        connect(model, &rule_model_t::layoutChanged, this, update_rules);
+        connect(model, &rule_model_t::modelReset, this, update_rules);
+        connect(model, &rule_model_t::rowsInserted, this, update_rules);
+        connect(model, &rule_model_t::rowsMoved, this, update_rules);
+        connect(model, &rule_model_t::rowsRemoved, this, update_rules);
     }
 
     _rules->set_model(model);
-    if (model)
-        _log->set_rules(get_rules_from_node(model->root()));
-    else
-        _log->set_rules({});
+    update_rules();
 }
 
 void main_widget_t::set_highlighting_style(matching_style_list_t styles)

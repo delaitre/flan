@@ -38,6 +38,8 @@ set(SOURCES
     src/rule_editor.cpp
     include/flan/valid_regular_expression_validator.hpp
     src/libflan.qrc
+    include/flan/rule_tree_view.hpp
+    src/rule_tree_view.cpp
 )
 
 add_library(flan SHARED ${SOURCES})

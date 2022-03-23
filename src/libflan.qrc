@@ -2,4 +2,8 @@
     <qresource prefix="/">
         <file alias="pcre_cheatsheet">assets/pcre_cheatsheet.html</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="group">assets/group_icon.svg</file>
+        <file alias="regex">assets/regex_icon.svg</file>
+    </qresource>
 </RCC>
