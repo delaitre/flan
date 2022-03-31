@@ -44,6 +44,8 @@ set(SOURCES
     src/color_button.cpp
     include/flan/style_button.hpp
     src/style_button.cpp
+    include/flan/style_editor_dialog.hpp
+    src/style_editor_dialog.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
