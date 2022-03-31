@@ -9,6 +9,8 @@ class QDialog;
 
 namespace flan
 {
+class style_list_widget_t;
+
 class rule_editor_t : public QWidget
 {
     Q_OBJECT
@@ -32,6 +34,7 @@ private:
     QLineEdit* _name_edit = nullptr;
     QLineEdit* _pattern_edit = nullptr;
     QLineEdit* _tooltip_edit = nullptr;
+    style_list_widget_t* _style_list = nullptr;
     QDialog* _pcre_cheatsheet_dialog = nullptr;
 
     QDataWidgetMapper _mapper;

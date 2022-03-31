@@ -5,5 +5,7 @@
     <qresource prefix="/icons">
         <file alias="group">assets/group_icon.svg</file>
         <file alias="regex">assets/regex_icon.svg</file>
+        <file alias="plus">assets/plus_icon.svg</file>
+        <file alias="minus">assets/minus_icon.svg</file>
     </qresource>
 </RCC>

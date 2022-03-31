@@ -2,6 +2,7 @@
 #include <flan/rule_editor.hpp>
 #include <flan/rule_model.hpp>
 #include <flan/rule_set.hpp>
+#include <flan/style_list_widget.hpp>
 #include <flan/valid_regular_expression_validator.hpp>
 #include <QAction>
 #include <QDialog>
@@ -12,6 +13,7 @@
 #include <QPushButton>
 #include <QStyle>
 #include <QTextEdit>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 // Q_INIT_RESOURCE has to be called from the global namespace, hence this workaround.
@@ -59,11 +61,13 @@ rule_editor_t::rule_editor_t(QWidget* parent)
     , _name_edit{new QLineEdit}
     , _pattern_edit{new QLineEdit}
     , _tooltip_edit{new QLineEdit}
+    , _style_list{new style_list_widget_t}
 {
     QFormLayout* layout = new QFormLayout;
     layout->addRow(tr("Name"), _name_edit);
     layout->addRow(tr("Pattern"), _pattern_edit);
     layout->addRow(tr("Tooltip"), _tooltip_edit);
+    layout->addRow(tr("Styles"), _style_list);
 
     setLayout(layout);
 
@@ -92,6 +96,8 @@ rule_editor_t::rule_editor_t(QWidget* parent)
     connect(_tooltip_edit, &QLineEdit::textEdited, this, [this]() {
         submit_data_and_restore_cursor(_mapper, *_tooltip_edit);
     });
+    connect(
+        _style_list, &style_list_widget_t::styles_changed, this, [this]() { _mapper.submit(); });
 }
 
 void rule_editor_t::set_model(QAbstractItemModel* model)
@@ -101,6 +107,7 @@ void rule_editor_t::set_model(QAbstractItemModel* model)
     _mapper.addMapping(_name_edit, rule_model_t::name_column_index);
     _mapper.addMapping(_pattern_edit, rule_model_t::pattern_column_index);
     _mapper.addMapping(_tooltip_edit, rule_model_t::tooltip_column_index);
+    _mapper.addMapping(_style_list, rule_model_t::styles_column_index, "styles");
 
     update_pattern_validity();
 }
