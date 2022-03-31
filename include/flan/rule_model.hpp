@@ -20,7 +20,9 @@ public:
     static constexpr int remove_column_index = 3;
     static constexpr int keep_column_index = 4;
     static constexpr int highlight_column_index = 5;
-    static constexpr int column_count = 6;
+    static constexpr int styles_column_index = 6;
+    static constexpr int computed_styles_column_index = 7;
+    static constexpr int column_count = 8;
 
 public:
     rule_model_t(QObject* parent = nullptr);
@@ -57,6 +59,17 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
+    template <typename PreFunctor, typename PostFunctor>
+    void visit(const QModelIndex& index, PreFunctor pre_visitor, PostFunctor post_visitor) const
+    {
+        assert(index.column() == 0);
+
+        pre_visitor(index);
+        for (int child_row = 0; child_row < rowCount(index); ++child_row)
+            visit(this->index(child_row, 0, index), pre_visitor, post_visitor);
+        post_visitor(index);
+    }
+
     base_node_t* node_at(const QModelIndex& index) const;
 
     QVariant data_for_base_node(const base_node_t& node, const QModelIndex& index, int role) const;

@@ -230,7 +230,30 @@ QVariant rule_model_t::headerData(int section, Qt::Orientation orientation, int 
             }
 
             return {};
+        case styles_column_index:
+            switch (role)
+            {
+            case Qt::DisplayRole:
+                return tr("Overriden styles");
+            case Qt::ToolTipRole:
+                return tr("List of styles overriden by this node");
+            default:
+                return {};
+            }
 
+            return {};
+        case computed_styles_column_index:
+            switch (role)
+            {
+            case Qt::DisplayRole:
+                return tr("Applied styles");
+            case Qt::ToolTipRole:
+                return tr("List of styles used by this node");
+            default:
+                return {};
+            }
+
+            return {};
         default:
             return {};
         }
@@ -248,9 +271,35 @@ QVariant rule_model_t::data_for_base_node(
     const QModelIndex& index,
     int role) const
 {
-    (void)node;
-    (void)index;
-    (void)role;
+    switch (index.column())
+    {
+    case styles_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            [[fallthrough]];
+        case Qt::EditRole:
+            return QVariant::fromValue(node.styles());
+        case Qt::ToolTipRole:
+            return tr("List of styles overriden by this node");
+        default:
+            return {};
+        }
+        return {};
+    case computed_styles_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            return QVariant::fromValue(node.computed_styles());
+        case Qt::ToolTipRole:
+            return tr("List of styles used by this node");
+        default:
+            return {};
+        }
+        return {};
+    default:
+        return {};
+    }
 
     return {};
 }
@@ -274,10 +323,9 @@ QVariant rule_model_t::data_for_group_node(
         }
         return {};
     default:
-        return {};
+        break;
     }
-
-    return {};
+    return data_for_base_node(node, index, role);
 }
 
 QVariant rule_model_t::data_for_rule_node(
@@ -363,10 +411,9 @@ QVariant rule_model_t::data_for_rule_node(
         }
         return {};
     default:
-        return {};
+        break;
     }
-
-    return {};
+    return data_for_base_node(node, index, role);
 }
 
 QVariant rule_model_t::data(const QModelIndex& index, int role) const
@@ -394,10 +441,47 @@ bool rule_model_t::set_data_for_base_node(
     const QVariant& value,
     int role)
 {
-    (void)node;
-    (void)index;
-    (void)value;
-    (void)role;
+    switch (index.column())
+    {
+    case styles_column_index:
+        switch (role)
+        {
+        case Qt::DisplayRole:
+            [[fallthrough]];
+        case Qt::EditRole:
+        {
+            if (value.canConvert<matching_style_list_t>())
+            {
+                node.set_styles(value.value<matching_style_list_t>());
+
+                // Notify style change for this node.
+                // Notifying for the potential computed style change is handled below.
+                emit dataChanged(index, index, QVector<int>{} << role);
+
+                // Changing the style might change the computed style of all the children. This
+                // function recursively visit all the children to also emit dataChanged().
+                //
+                // This function expect the \a index to be the "main" index of the row, which is
+                // column 0 as all the children are under column 0.
+                auto notify_computed_styles_changed = [this, role](const QModelIndex& index) {
+                    auto index_computed_styles =
+                        index.siblingAtColumn(computed_styles_column_index);
+                    emit dataChanged(
+                        index_computed_styles, index_computed_styles, QVector<int>{} << role);
+                };
+                visit(index.siblingAtColumn(0), notify_computed_styles_changed, [](auto&) {});
+
+                return true;
+            }
+            break;
+        }
+        default:
+            return false;
+        }
+        return false;
+    default:
+        return false;
+    }
 
     return false;
 }
@@ -426,10 +510,9 @@ bool rule_model_t::set_data_for_group_node(
         }
         return false;
     default:
-        return false;
+        break;
     }
-
-    return false;
+    return set_data_for_base_node(node, index, value, role);
 }
 
 bool rule_model_t::set_data_for_rule_node(
@@ -561,10 +644,9 @@ bool rule_model_t::set_data_for_rule_node(
         }
         return false;
     default:
-        return false;
+        break;
     }
-
-    return false;
+    return set_data_for_base_node(node, index, value, role);
 }
 
 bool rule_model_t::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -589,9 +671,18 @@ bool rule_model_t::setData(const QModelIndex& index, const QVariant& value, int 
 Qt::ItemFlags rule_model_t::flags_for_base_node(const base_node_t& node, const QModelIndex& index)
     const
 {
-    (void)node;
-    (void)index;
+    if (!index.isValid())
+        return Qt::NoItemFlags;
 
+    switch (index.column())
+    {
+    case styles_column_index:
+        return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+    case computed_styles_column_index:
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    default:
+        return Qt::NoItemFlags;
+    }
     return Qt::NoItemFlags;
 }
 
@@ -606,9 +697,9 @@ Qt::ItemFlags rule_model_t::flags_for_group_node(const group_node_t& node, const
     case name_column_index:
         return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
     default:
-        return Qt::NoItemFlags;
+        break;
     }
-    return Qt::NoItemFlags;
+    return flags_for_base_node(node, index);
 }
 
 Qt::ItemFlags rule_model_t::flags_for_rule_node(const rule_node_t& node, const QModelIndex& index)
@@ -632,9 +723,9 @@ Qt::ItemFlags rule_model_t::flags_for_rule_node(const rule_node_t& node, const Q
     case highlight_column_index:
         return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     default:
-        return Qt::NoItemFlags;
+        break;
     }
-    return Qt::NoItemFlags;
+    return flags_for_base_node(node, index);
 }
 
 Qt::ItemFlags rule_model_t::flags(const QModelIndex& index) const

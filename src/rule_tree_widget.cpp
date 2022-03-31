@@ -44,6 +44,8 @@ void rule_tree_widget_t::set_model(rule_model_t* model)
         header->setSectionResizeMode(rule_model_t::remove_column_index, QHeaderView::Fixed);
         header->setSectionResizeMode(rule_model_t::keep_column_index, QHeaderView::Fixed);
         header->setSectionResizeMode(rule_model_t::highlight_column_index, QHeaderView::Fixed);
+        header->setSectionHidden(rule_model_t::styles_column_index, true);
+        header->setSectionHidden(rule_model_t::computed_styles_column_index, true);
 
         auto biggest_section_size = std::max(
             {header->sectionSizeHint(rule_model_t::remove_column_index),
