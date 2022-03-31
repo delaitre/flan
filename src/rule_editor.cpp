@@ -1,40 +1,17 @@
 
+#include <flan/pcre_cheatsheet_dialog.hpp>
 #include <flan/rule_editor.hpp>
 #include <flan/rule_model.hpp>
 #include <flan/rule_set.hpp>
 #include <flan/style_list_widget.hpp>
 #include <flan/valid_regular_expression_validator.hpp>
 #include <QAction>
-#include <QDialog>
-#include <QFile>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
-#include <QPushButton>
 #include <QStyle>
-#include <QTextEdit>
-#include <QToolButton>
-#include <QVBoxLayout>
-
-// Q_INIT_RESOURCE has to be called from the global namespace, hence this workaround.
-inline void init_resource()
-{
-    Q_INIT_RESOURCE(libflan);
-}
 
 namespace
 {
-QByteArray get_pcre_cheatsheet_content()
-{
-    init_resource();
-    QFile file(":/pcre_cheatsheet");
-    file.open(QIODeviceBase::ReadOnly);
-    auto data = file.readAll();
-    file.close();
-
-    return data;
-}
-
 //! Submit the \a mapper data and ensure the cursor position of the \a line_edit does not change in
 //! the process.
 //!
@@ -190,23 +167,11 @@ void rule_editor_t::show_pcre_cheatsheet_dialog()
     // those dialog can be opened at the same time.
     if (!_pcre_cheatsheet_dialog)
     {
-        auto content = new QTextEdit{get_pcre_cheatsheet_content()};
-        content->setReadOnly(true);
-        auto close_button = new QPushButton{tr("Close")};
-
-        auto layout = new QVBoxLayout;
-        layout->addWidget(content);
-        layout->addWidget(close_button, 0, Qt::AlignRight);
-
-        _pcre_cheatsheet_dialog = new QDialog{this};
-        _pcre_cheatsheet_dialog->setWindowTitle(tr("PCRE Regular Expression Cheatsheet"));
+        _pcre_cheatsheet_dialog = new pcre_cheatsheet_dialog_t{this};
         _pcre_cheatsheet_dialog->setModal(false);
-        _pcre_cheatsheet_dialog->setLayout(layout);
-        _pcre_cheatsheet_dialog->resize(1200, 600);
 
         connect(
             _pcre_cheatsheet_dialog, &QDialog::finished, _pcre_cheatsheet_dialog, &QDialog::hide);
-        connect(close_button, &QPushButton::clicked, _pcre_cheatsheet_dialog, &QDialog::accept);
     }
 
     _pcre_cheatsheet_dialog->show();

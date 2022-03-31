@@ -48,6 +48,8 @@ set(SOURCES
     src/style_editor_dialog.cpp
     include/flan/style_list_widget.hpp
     src/style_list_widget.cpp
+    include/flan/pcre_cheatsheet_dialog.hpp
+    src/pcre_cheatsheet_dialog.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
