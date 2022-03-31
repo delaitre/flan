@@ -40,6 +40,8 @@ set(SOURCES
     src/libflan.qrc
     include/flan/rule_tree_view.hpp
     src/rule_tree_view.cpp
+    include/flan/color_button.hpp
+    src/color_button.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
