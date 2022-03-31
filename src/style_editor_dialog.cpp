@@ -8,6 +8,26 @@
 
 namespace flan
 {
+namespace
+{
+//! Cast an enum class value \a e to its underlying type.
+template <typename Enum>
+[[maybe_unused]] constexpr auto to_underlying(Enum e) noexcept
+{
+    return static_cast<std::underlying_type_t<Enum>>(e);
+}
+
+constexpr int to_combo_box_index(font_style_t font_style)
+{
+    return to_underlying(font_style);
+}
+
+constexpr int to_combo_box_index(font_weight_t font_weight)
+{
+    return to_underlying(font_weight);
+}
+} // namespace
+
 style_editor_dialog_t::style_editor_dialog_t(const matching_style_t& initial_style, QWidget* parent)
     : QDialog{parent}
     , _style{initial_style}
@@ -19,11 +39,13 @@ style_editor_dialog_t::style_editor_dialog_t(const matching_style_t& initial_sty
     _background_button = new color_button_t;
     _background_button->set_color(_style.background_color);
     _font_style_combo = new QComboBox;
-    // FIXME: set current value
-    _font_style_combo->addItems(QStringList() << tr("normal") << tr("italic"));
+    _font_style_combo->addItem(tr("normal"), QVariant::fromValue(font_style_t::normal));
+    _font_style_combo->addItem(tr("italic"), QVariant::fromValue(font_style_t::italic));
+    _font_style_combo->setCurrentIndex(to_combo_box_index(_style.font_style));
     _font_weight_combo = new QComboBox;
-    // FIXME: set current value
-    _font_weight_combo->addItems(QStringList() << tr("normal") << tr("bold"));
+    _font_weight_combo->addItem(tr("normal"), QVariant::fromValue(font_weight_t::normal));
+    _font_weight_combo->addItem(tr("bold"), QVariant::fromValue(font_weight_t::bold));
+    _font_weight_combo->setCurrentIndex(to_combo_box_index(_style.font_weight));
     _preview = new QLabel(tr("This is what it will look like!"));
 
     auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -43,31 +65,8 @@ style_editor_dialog_t::style_editor_dialog_t(const matching_style_t& initial_sty
     auto update_style = [this]() {
         _style.foreground_color = _foreground_button->color();
         _style.background_color = _background_button->color();
-
-        // FIXME
-        //        switch (font_style_combo->currentIndex())
-        //        {
-        //        case 0:
-        //            _style.font_style = "normal";
-        //            break;
-        //        case 1:
-        //            _style.font_style = "italic";
-        //            break;
-        //        default:
-        //            break;
-        //        }
-
-        //        switch (font_weight_combo->currentIndex())
-        //        {
-        //        case 0:
-        //            _style.font_weight = "normal";
-        //            break;
-        //        case 1:
-        //            _style.font_weight = "bold";
-        //            break;
-        //        default:
-        //            break;
-        //        }
+        _style.font_style = _font_style_combo->currentData().value<font_style_t>();
+        _style.font_weight = _font_weight_combo->currentData().value<font_weight_t>();
     };
 
     auto update_preview = [this]() {
@@ -82,11 +81,8 @@ style_editor_dialog_t::style_editor_dialog_t(const matching_style_t& initial_sty
                         QString("background-color: %1;")
                             .arg(_style.background_color.name(QColor::HexArgb)) :
                         "")
-                .arg("")
-                .arg(""));
-        //                .arg(QString("font-style: %1;").arg(_style.font_style == 0 ? "normal" :
-        //                "italic")) .arg(QString("font-weight: %1").arg(_style.font_weight == 0 ?
-        //                "normal" : "bold")));
+                .arg(QString("font-style: %1;").arg(to_css_string(_style.font_style)))
+                .arg(QString("font-weight: %1;").arg(to_css_string(_style.font_weight))));
     };
 
     auto update = [=]() {

@@ -28,12 +28,8 @@ void style_button_t::set_style(matching_style_t style)
                         QString("background-color: %1;")
                             .arg(_style.background_color.name(QColor::HexArgb)) :
                         "")
-                .arg("")
-                .arg(""));
-        //.arg(QString("font-style: %1;")
-        //         .arg(font_style_combo->currentIndex() == 0 ? "normal" : "italic"))
-        //.arg(QString("font-weight: %1")
-        //         .arg(font_weight_combo->currentIndex() == 0 ? "normal" : "bold")));
+                .arg(QString("font-style: %1;").arg(to_css_string(_style.font_style)))
+                .arg(QString("font-weight: %1;").arg(to_css_string(_style.font_weight))));
 
         emit style_changed(_style);
     }

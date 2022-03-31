@@ -5,23 +5,17 @@ namespace flan
 {
 namespace
 {
-QTextCharFormat::UnderlineStyle to_qt(underline_style_t underline_style)
+constexpr QFont::Weight to_qt(font_weight_t font_weight)
 {
-    switch (underline_style)
+    switch (font_weight)
     {
-    case flan::underline_style_t::none:
-        return QTextCharFormat::NoUnderline;
-    case flan::underline_style_t::solid:
-        return QTextCharFormat::SingleUnderline;
-    case flan::underline_style_t::dash:
-        return QTextCharFormat::DashUnderline;
-    case flan::underline_style_t::dot:
-        return QTextCharFormat::DotLine;
-    case flan::underline_style_t::wave:
-        return QTextCharFormat::WaveUnderline;
+    case font_weight_t::normal:
+        return QFont::Normal;
+    case font_weight_t::bold:
+        return QFont::Bold;
     }
 
-    return QTextCharFormat::NoUnderline;
+    return QFont::Normal;
 }
 
 QTextCharFormat to_qt(const matching_style_t& style)
@@ -31,9 +25,19 @@ QTextCharFormat to_qt(const matching_style_t& style)
         format.setForeground(style.foreground_color);
     if (style.background_color.isValid())
         format.setBackground(style.background_color);
-    if (style.underline_color.isValid())
-        format.setUnderlineColor(style.underline_color);
-    format.setUnderlineStyle(to_qt(style.underline_style));
+
+    switch (style.font_style)
+    {
+    case font_style_t::normal:
+        format.setFontItalic(false);
+        break;
+    case font_style_t::italic:
+        format.setFontItalic(true);
+        break;
+    }
+
+    format.setFontWeight(to_qt(style.font_weight));
+
     return format;
 }
 } // namespace

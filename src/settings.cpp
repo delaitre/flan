@@ -31,13 +31,12 @@ static const auto settings_key_rule_tooltip{"tooltip"};
 
 static const auto settings_key_style_foreground_color{"foreground_color"};
 static const auto settings_key_style_background_color{"background_color"};
-static const auto settings_key_style_underline_color{"underline_color"};
-static const auto settings_key_style_underline_style{"underline_style"};
-static const auto settings_key_style_underline_style_none{"none"};
-static const auto settings_key_style_underline_style_solid{"solid"};
-static const auto settings_key_style_underline_style_dash{"dash"};
-static const auto settings_key_style_underline_style_dot{"dot"};
-static const auto settings_key_style_underline_style_wave{"wave"};
+static const auto settings_key_style_font_style{"font_style"};
+static const auto settings_key_style_font_style_normal{"normal"};
+static const auto settings_key_style_font_style_italic{"italic"};
+static const auto settings_key_style_font_weight{"font_weight"};
+static const auto settings_key_style_font_weight_normal{"normal"};
+static const auto settings_key_style_font_weight_bold{"bold"};
 
 //! Cast an enum class value \a to its underlying type
 template <typename Enum>
@@ -72,31 +71,34 @@ QVariant style_to_variant(const matching_style_t& style)
         map[settings_key_style_foreground_color] = style.foreground_color.name(QColor::HexArgb);
     if (style.background_color.isValid())
         map[settings_key_style_background_color] = style.background_color.name(QColor::HexArgb);
-    if (style.underline_color.isValid())
-        map[settings_key_style_underline_color] = style.underline_color.name(QColor::HexArgb);
 
-    QString underline_style_name;
-    switch (style.underline_style)
+    QString font_style_name;
+    switch (style.font_style)
     {
-    case underline_style_t::none:
-        // Don't actually write the style if it is none.
+    case font_style_t::normal:
+        // Don't actually write the style if it is normal.
         break;
-    case underline_style_t::solid:
-        underline_style_name = settings_key_style_underline_style_solid;
-        break;
-    case underline_style_t::dash:
-        underline_style_name = settings_key_style_underline_style_dash;
-        break;
-    case underline_style_t::dot:
-        underline_style_name = settings_key_style_underline_style_dot;
-        break;
-    case underline_style_t::wave:
-        underline_style_name = settings_key_style_underline_style_wave;
+    case font_style_t::italic:
+        font_style_name = settings_key_style_font_style_italic;
         break;
     }
 
-    if (!underline_style_name.isEmpty())
-        map[settings_key_style_underline_style] = underline_style_name;
+    if (!font_style_name.isEmpty())
+        map[settings_key_style_font_style] = font_style_name;
+
+    QString font_weight_name;
+    switch (style.font_weight)
+    {
+    case font_weight_t::normal:
+        // Don't actually write the style if it is normal.
+        break;
+    case font_weight_t::bold:
+        font_weight_name = settings_key_style_font_weight_bold;
+        break;
+    }
+
+    if (!font_weight_name.isEmpty())
+        map[settings_key_style_font_weight] = font_weight_name;
 
     return {map};
 }
@@ -192,27 +194,27 @@ std::optional<matching_style_t> style_from_variant(const QVariant& variant)
 
     auto foreground = map.value(settings_key_style_foreground_color).toString();
     auto background = map.value(settings_key_style_background_color).toString();
-    auto underline_color = map.value(settings_key_style_underline_color).toString();
-    auto underline_style = map.value(settings_key_style_underline_style).toString();
+    auto font_style = map.value(settings_key_style_font_style).toString();
+    auto font_weight = map.value(settings_key_style_font_weight).toString();
 
     matching_style_t style;
 
     style.foreground_color = QColor{foreground};
     style.background_color = QColor{background};
-    style.underline_color = QColor{underline_color};
 
-    if (underline_style == settings_key_style_underline_style_none)
-        style.underline_style = underline_style_t::none;
-    else if (underline_style == settings_key_style_underline_style_solid)
-        style.underline_style = underline_style_t::solid;
-    else if (underline_style == settings_key_style_underline_style_dash)
-        style.underline_style = underline_style_t::dash;
-    else if (underline_style == settings_key_style_underline_style_dot)
-        style.underline_style = underline_style_t::dot;
-    else if (underline_style == settings_key_style_underline_style_wave)
-        style.underline_style = underline_style_t::wave;
+    if (font_style == settings_key_style_font_style_normal)
+        style.font_style = font_style_t::normal;
+    else if (font_style == settings_key_style_font_style_italic)
+        style.font_style = font_style_t::italic;
     else
-        style.underline_style = underline_style_t::none;
+        style.font_style = font_style_t::normal;
+
+    if (font_weight == settings_key_style_font_weight_normal)
+        style.font_weight = font_weight_t::normal;
+    else if (font_weight == settings_key_style_font_weight_bold)
+        style.font_weight = font_weight_t::bold;
+    else
+        style.font_weight = font_weight_t::normal;
 
     return style;
 }
