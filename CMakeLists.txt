@@ -42,6 +42,8 @@ set(SOURCES
     src/rule_tree_view.cpp
     include/flan/color_button.hpp
     src/color_button.cpp
+    include/flan/style_button.hpp
+    src/style_button.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
