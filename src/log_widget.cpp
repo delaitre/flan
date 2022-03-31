@@ -34,7 +34,14 @@ void log_widget_t::set_highlighting_style(matching_style_list_t styles)
 
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
 {
-    // Show a tooltip for the match under the mouse pointer.
+    // If buttons are pressed, use the base class implementation.
+    if (event->buttons() != Qt::NoButton)
+    {
+        QPlainTextEdit::mouseMoveEvent(event);
+        return;
+    }
+
+    // If no button are pressed, show a tooltip for the match under the mouse pointer.
     QPoint local_position;
     QPoint global_position;
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
