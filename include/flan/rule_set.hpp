@@ -2,6 +2,7 @@
 #pragma once
 
 #include <flan/matching_rule.hpp>
+#include <flan/style.hpp>
 #include <memory>
 #include <vector>
 
@@ -109,6 +110,22 @@ public:
 
     node_type_t type() const { return _type; }
 
+    //! Get the highlighting styles assigned to this node.
+    //!
+    //! \note The returned list may be empty. In which case the styles to use for this node should
+    //! come from the node's parent. \sa compuated_styles.
+    const matching_style_list_t& styles() const { return _styles; }
+
+    //! Change the \a styles used for highlighting for this node and its children.
+    //!
+    //! If the \a styles is an empty list, the styles used will be inherited from the node's parent.
+    void set_styles(matching_style_list_t styles);
+
+    //! Get the highlighting styles to use for this node
+    //!
+    //! This will retrieve the styles from the node's parent if styles() is empty.
+    const matching_style_list_t& computed_styles() const;
+
     template <typename PreFunctor, typename PostFunctor>
     void visit(PreFunctor pre_visitor, PostFunctor post_visitor) const
     {
@@ -141,6 +158,11 @@ private:
 
     //! The type of this node.
     node_type_t _type;
+
+    //! List of style used for highlighting.
+    //!
+    //! If the list is empty, the styles from the parent is used.
+    matching_style_list_t _styles;
 };
 
 class group_node_t : public base_node_t

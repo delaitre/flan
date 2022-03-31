@@ -16,6 +16,7 @@ static const auto settings_key_node_type_base{"base"};
 static const auto settings_key_node_type_group{"group"};
 static const auto settings_key_node_type_rule{"rule"};
 static const auto settings_key_node_children{"children"};
+static const auto settings_key_node_styles{"styles"};
 
 static const auto settings_key_group_name{"name"};
 
@@ -28,7 +29,6 @@ static const auto settings_key_rule_behaviour_keep_line{"keep_line"};
 static const auto settings_key_rule_highlight_match{"highlight_match"};
 static const auto settings_key_rule_tooltip{"tooltip"};
 
-static const auto settings_key_style_matches{"style_matches"};
 static const auto settings_key_style_foreground_color{"foreground_color"};
 static const auto settings_key_style_background_color{"background_color"};
 static const auto settings_key_style_underline_color{"underline_color"};
@@ -62,181 +62,6 @@ QString get_default_settings_file_for_rules()
 QString get_default_settings_file_for_styles()
 {
     return QFileInfo{QDir{get_default_settings_directory()}, "styles.json"}.filePath();
-}
-
-QVariant rule_to_variant(const base_node_t& node)
-{
-    QVariantMap map;
-
-    switch (node.type())
-    {
-    case node_type_t::base:
-        map[settings_key_node_type] = settings_key_node_type_base;
-        break;
-    case node_type_t::group:
-    {
-        auto& group_node = static_cast<const group_node_t&>(node);
-
-        map[settings_key_node_type] = settings_key_node_type_group;
-        map[settings_key_group_name] = group_node.name();
-        break;
-    }
-    case node_type_t::rule:
-    {
-        auto& rule_node = static_cast<const rule_node_t&>(node);
-
-        const auto& rule = rule_node.rule();
-
-        map[settings_key_node_type] = settings_key_node_type_rule;
-        map[settings_key_rule_name] = rule.name;
-        map[settings_key_rule_pattern] = rule.rule.pattern();
-        switch (rule.behaviour)
-        {
-        case filtering_behaviour_t::none:
-            map[settings_key_rule_behaviour] = settings_key_rule_behaviour_none;
-            break;
-        case filtering_behaviour_t::remove_line:
-            map[settings_key_rule_behaviour] = settings_key_rule_behaviour_remove_line;
-            break;
-        case filtering_behaviour_t::keep_line:
-            map[settings_key_rule_behaviour] = settings_key_rule_behaviour_keep_line;
-            break;
-        }
-        map[settings_key_rule_highlight_match] = rule.highlight_match;
-        map[settings_key_rule_tooltip] = rule.tooltip;
-        break;
-    }
-    }
-
-    QVariantList children;
-    for (int i = 0; i < node.child_count(); ++i)
-        children.append(rule_to_variant(node.child(i)));
-
-    if (!children.empty())
-        map[settings_key_node_children] = children;
-
-    return {map};
-}
-
-QVariant rules_to_variant(const base_node_t& node)
-{
-    // Skip the root node which shouldn't contain any data, and process each child directly to
-    // add them in a list.
-    QVariantList rules;
-    for (int i = 0; i < node.child_count(); ++i)
-        rules.append(rule_to_variant(node.child(i)));
-
-    // Add the list to a root node. This allows the root node to only have a list, but none of the
-    // other attribute.
-    QVariantMap root;
-    root[settings_key_rules] = rules;
-
-    return {root};
-}
-
-void save_rules_to_json(const base_node_t& node, QString file_path)
-{
-    auto variant = rules_to_variant(node);
-    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
-    QFile file{file_path};
-    file.open(QIODevice::WriteOnly);
-    file.write(json);
-    file.close();
-}
-
-base_node_uniq_t rule_from_variant(const QVariant& variant)
-{
-    if (!variant.canConvert<QVariantMap>())
-        return {};
-    auto map = variant.value<QVariantMap>();
-
-    auto type = map.value(settings_key_node_type);
-    if (!type.isValid())
-        return {};
-
-    base_node_uniq_t node;
-
-    if (type == settings_key_node_type_base)
-    {
-        node = std::make_unique<base_node_t>();
-    }
-    else if (type == settings_key_node_type_group)
-    {
-        auto name = map.value(settings_key_group_name).toString();
-        if (name.isEmpty())
-            return {};
-
-        node = std::make_unique<group_node_t>(name);
-    }
-    else if (type == settings_key_node_type_rule)
-    {
-        auto name = map.value(settings_key_rule_name).toString();
-        auto pattern = map.value(settings_key_rule_pattern).toString();
-        auto behaviour = map.value(settings_key_rule_behaviour).toString();
-        auto highlight = map.value(settings_key_rule_highlight_match).toBool();
-        auto tooltip = map.value(settings_key_rule_tooltip).toString();
-        if (name.isEmpty() || pattern.isEmpty() || behaviour.isEmpty())
-            return {};
-
-        filtering_behaviour_t filtering_behaviour = filtering_behaviour_t::none;
-        if (behaviour == settings_key_rule_behaviour_none)
-            filtering_behaviour = filtering_behaviour_t::none;
-        else if (behaviour == settings_key_rule_behaviour_remove_line)
-            filtering_behaviour = filtering_behaviour_t::remove_line;
-        else if (behaviour == settings_key_rule_behaviour_keep_line)
-            filtering_behaviour = filtering_behaviour_t::keep_line;
-        else
-            return {};
-
-        node = std::make_unique<rule_node_t>(matching_rule_t{
-            name, QRegularExpression{pattern}, filtering_behaviour, highlight, tooltip});
-    }
-
-    auto children = map.value(settings_key_node_children);
-    if (children.canConvert<QVariantList>())
-    {
-        auto child_list = children.value<QVariantList>();
-        for (const auto& child: child_list)
-        {
-            if (auto child_node = rule_from_variant(child))
-                node->add_child(std::move(child_node));
-        }
-    }
-
-    return node;
-}
-
-base_node_uniq_t rules_from_variant(const QVariant& variant)
-{
-    // Top level variant should contain a map with an entry containing a list of rules.
-    if (!variant.canConvert<QVariantMap>())
-        return {};
-    auto map = variant.value<QVariantMap>();
-
-    // Extract the list of rules.
-    auto rules = map.value(settings_key_rules);
-    if (!rules.canConvert<QVariantList>())
-        return {};
-
-    auto rule_list = rules.value<QVariantList>();
-    auto root = std::make_unique<base_node_t>();
-    for (const auto& rule: rule_list)
-    {
-        if (auto child = rule_from_variant(rule))
-            root->add_child(std::move(child));
-    }
-
-    return root;
-}
-
-base_node_uniq_t load_rules_from_json(QString file_path)
-{
-    QFile file{file_path};
-    file.open(QIODevice::ReadOnly);
-    auto json = file.readAll();
-    file.close();
-    auto variant = QJsonDocument::fromJson(json).toVariant();
-    return rules_from_variant(variant);
 }
 
 QVariant style_to_variant(const matching_style_t& style)
@@ -282,20 +107,81 @@ QVariant styles_to_variant(const matching_style_list_t& styles)
     for (const auto& style: styles)
         styles_variant_list.append(style_to_variant(style));
 
-    QVariantMap root;
-    root[settings_key_style_matches] = styles_variant_list;
-
-    return {root};
+    return {styles_variant_list};
 }
 
-void save_styles_to_json(const matching_style_list_t& styles, QString file_path)
+QVariant rule_to_variant(const base_node_t& node)
 {
-    auto variant = styles_to_variant(styles);
-    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
-    QFile file{file_path};
-    file.open(QIODevice::WriteOnly);
-    file.write(json);
-    file.close();
+    QVariantMap map;
+
+    // Type specific attributes
+    switch (node.type())
+    {
+    case node_type_t::base:
+        map[settings_key_node_type] = settings_key_node_type_base;
+        break;
+    case node_type_t::group:
+    {
+        auto& group_node = static_cast<const group_node_t&>(node);
+
+        map[settings_key_node_type] = settings_key_node_type_group;
+        map[settings_key_group_name] = group_node.name();
+        break;
+    }
+    case node_type_t::rule:
+    {
+        auto& rule_node = static_cast<const rule_node_t&>(node);
+
+        const auto& rule = rule_node.rule();
+
+        map[settings_key_node_type] = settings_key_node_type_rule;
+        map[settings_key_rule_name] = rule.name;
+        map[settings_key_rule_pattern] = rule.rule.pattern();
+        switch (rule.behaviour)
+        {
+        case filtering_behaviour_t::none:
+            map[settings_key_rule_behaviour] = settings_key_rule_behaviour_none;
+            break;
+        case filtering_behaviour_t::remove_line:
+            map[settings_key_rule_behaviour] = settings_key_rule_behaviour_remove_line;
+            break;
+        case filtering_behaviour_t::keep_line:
+            map[settings_key_rule_behaviour] = settings_key_rule_behaviour_keep_line;
+            break;
+        }
+        map[settings_key_rule_highlight_match] = rule.highlight_match;
+        map[settings_key_rule_tooltip] = rule.tooltip;
+        break;
+    }
+    }
+
+    // Generic attributes
+    if (auto& styles = node.styles(); !styles.empty())
+        map[settings_key_node_styles] = styles_to_variant(styles);
+
+    QVariantList children;
+    for (int i = 0; i < node.child_count(); ++i)
+        children.append(rule_to_variant(node.child(i)));
+
+    if (!children.empty())
+        map[settings_key_node_children] = children;
+
+    return {map};
+}
+
+QVariant rules_to_variant(const base_node_t& node)
+{
+    // Only save the styles and children for the root node.
+    QVariantMap root;
+    root[settings_key_node_styles] = styles_to_variant(node.styles());
+
+    QVariantList children;
+    for (int i = 0; i < node.child_count(); ++i)
+        children.append(rule_to_variant(node.child(i)));
+
+    root[settings_key_node_children] = children;
+
+    return {root};
 }
 
 std::optional<matching_style_t> style_from_variant(const QVariant& variant)
@@ -333,25 +219,142 @@ std::optional<matching_style_t> style_from_variant(const QVariant& variant)
 
 matching_style_list_t styles_from_variant(const QVariant& variant)
 {
-    // Top level variant should contain a map with an entry containing a list of styles.
+    // Extract the list of style matches.
+    if (!variant.canConvert<QVariantList>())
+        return {};
+    auto styles_variant_list = variant.value<QVariantList>();
+
+    matching_style_list_t styles;
+    for (const auto& style_variant: styles_variant_list)
+    {
+        if (auto style = style_from_variant(style_variant))
+            styles.push_back(*style);
+    }
+
+    return styles;
+}
+
+base_node_uniq_t rule_from_variant(const QVariant& variant)
+{
     if (!variant.canConvert<QVariantMap>())
         return {};
     auto map = variant.value<QVariantMap>();
 
-    // Extract the list of style matches.
-    auto style_matches_variant = map.value(settings_key_style_matches);
-    if (!style_matches_variant.canConvert<QVariantList>())
+    auto type = map.value(settings_key_node_type);
+    if (!type.isValid())
         return {};
-    auto style_matches_variant_list = style_matches_variant.value<QVariantList>();
 
-    matching_style_list_t style_matches;
-    for (const auto& style_match_variant: style_matches_variant_list)
+    // Type specific attributes
+    base_node_uniq_t node;
+
+    if (type == settings_key_node_type_base)
     {
-        if (auto style = style_from_variant(style_match_variant))
-            style_matches.push_back(*style);
+        node = std::make_unique<base_node_t>();
+    }
+    else if (type == settings_key_node_type_group)
+    {
+        auto name = map.value(settings_key_group_name).toString();
+        if (name.isEmpty())
+            return {};
+
+        node = std::make_unique<group_node_t>(name);
+    }
+    else if (type == settings_key_node_type_rule)
+    {
+        auto name = map.value(settings_key_rule_name).toString();
+        auto pattern = map.value(settings_key_rule_pattern).toString();
+        auto behaviour = map.value(settings_key_rule_behaviour).toString();
+        auto highlight = map.value(settings_key_rule_highlight_match).toBool();
+        auto tooltip = map.value(settings_key_rule_tooltip).toString();
+        if (name.isEmpty() || pattern.isEmpty() || behaviour.isEmpty())
+            return {};
+
+        filtering_behaviour_t filtering_behaviour = filtering_behaviour_t::none;
+        if (behaviour == settings_key_rule_behaviour_none)
+            filtering_behaviour = filtering_behaviour_t::none;
+        else if (behaviour == settings_key_rule_behaviour_remove_line)
+            filtering_behaviour = filtering_behaviour_t::remove_line;
+        else if (behaviour == settings_key_rule_behaviour_keep_line)
+            filtering_behaviour = filtering_behaviour_t::keep_line;
+        else
+            return {};
+
+        node = std::make_unique<rule_node_t>(matching_rule_t{
+            name, QRegularExpression{pattern}, filtering_behaviour, highlight, tooltip});
     }
 
-    return style_matches;
+    // Generic attributes
+    auto styles = styles_from_variant(map.value(settings_key_node_styles));
+    node->set_styles(std::move(styles));
+
+    auto children = map.value(settings_key_node_children);
+    if (children.canConvert<QVariantList>())
+    {
+        auto child_list = children.value<QVariantList>();
+        for (const auto& child: child_list)
+        {
+            if (auto child_node = rule_from_variant(child))
+                node->add_child(std::move(child_node));
+        }
+    }
+
+    return node;
+}
+
+base_node_uniq_t rules_from_variant(const QVariant& variant)
+{
+    // Extract the root node first which should only have styles and children.
+    if (!variant.canConvert<QVariantMap>())
+        return {};
+    auto root_map = variant.value<QVariantMap>();
+
+    auto styles_variant = root_map.value(settings_key_node_styles);
+    auto root_styles = styles_from_variant(styles_variant);
+
+    auto children_variant = root_map.value(settings_key_node_children);
+    if (!children_variant.canConvert<QVariantList>())
+        return {};
+    auto children_list = children_variant.value<QVariantList>();
+
+    auto root = std::make_unique<base_node_t>();
+    root->set_styles(std::move(root_styles));
+    for (const auto& child_variant: children_list)
+    {
+        if (auto child = rule_from_variant(child_variant))
+            root->add_child(std::move(child));
+    }
+
+    return root;
+}
+
+void save_rules_to_json(const base_node_t& node, QString file_path)
+{
+    auto variant = rules_to_variant(node);
+    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
+    QFile file{file_path};
+    file.open(QIODevice::WriteOnly);
+    file.write(json);
+    file.close();
+}
+
+base_node_uniq_t load_rules_from_json(QString file_path)
+{
+    QFile file{file_path};
+    file.open(QIODevice::ReadOnly);
+    auto json = file.readAll();
+    file.close();
+    auto variant = QJsonDocument::fromJson(json).toVariant();
+    return rules_from_variant(variant);
+}
+
+void save_styles_to_json(const matching_style_list_t& styles, QString file_path)
+{
+    auto variant = styles_to_variant(styles);
+    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
+    QFile file{file_path};
+    file.open(QIODevice::WriteOnly);
+    file.write(json);
+    file.close();
 }
 
 matching_style_list_t load_styles_from_json(QString file_path)

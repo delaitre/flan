@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QColor>
+#include <QMetaType>
 #include <vector>
 
 namespace flan
@@ -25,5 +26,8 @@ struct matching_style_t
 
 using matching_style_list_t = std::vector<matching_style_t>;
 
-matching_style_list_t get_default_styles();
+const matching_style_list_t& get_default_styles();
 } // namespace flan
+
+Q_DECLARE_METATYPE(flan::underline_style_t)
+Q_DECLARE_METATYPE(flan::matching_style_t)
