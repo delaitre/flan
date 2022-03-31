@@ -35,15 +35,31 @@ void log_widget_t::set_highlighting_style(matching_style_list_t styles)
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
 {
     // Show a tooltip for the match under the mouse pointer.
+    QPoint local_position;
+    QPoint global_position;
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    QTextCursor cursor = cursorForPosition(event->position().toPoint());
+    local_position = event->position().toPoint();
+    global_position = event->globalPosition().toPoint();
 #else
-    QTextCursor cursor = cursorForPosition(event->pos());
+    local_position = event->pos();
+    global_position = event->globalPos();
 #endif
+
+    auto tooltip_text = tooltip_at(local_position);
+    QToolTip::showText(global_position, tooltip_text, this);
+
+    event->accept();
+}
+
+QString log_widget_t::tooltip_at(QPoint position)
+{
+    QTextCursor cursor = cursorForPosition(position);
 
     int position_in_block = cursor.positionInBlock();
     QString text = cursor.block().text();
     QString tooltip_text; // An empty text will hide the tooltip.
+
+    // This first rule matching has higher priority and is used for the tooltip.
     for (const auto& rule: _rules)
     {
         if (!rule.highlight_match)
@@ -71,13 +87,7 @@ void log_widget_t::mouseMoveEvent(QMouseEvent* event)
             break;
     }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    QToolTip::showText(event->globalPosition().toPoint(), tooltip_text, this);
-#else
-    QToolTip::showText(event->globalPos(), tooltip_text, this);
-#endif
-
-    event->accept();
+    return tooltip_text;
 }
 
 void log_widget_t::apply_rules()

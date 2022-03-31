@@ -30,6 +30,9 @@ public slots:
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
 
+private:
+    QString tooltip_at(QPoint position);
+
 private slots:
 
     void apply_rules();
