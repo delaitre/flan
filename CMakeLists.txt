@@ -46,6 +46,8 @@ set(SOURCES
     src/style_button.cpp
     include/flan/style_editor_dialog.hpp
     src/style_editor_dialog.cpp
+    include/flan/style_list_widget.hpp
+    src/style_list_widget.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
