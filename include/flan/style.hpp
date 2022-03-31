@@ -24,6 +24,19 @@ struct matching_style_t
     underline_style_t underline_style;
 };
 
+inline bool operator==(const matching_style_t& lhs, const matching_style_t& rhs)
+{
+    return (lhs.foreground_color == rhs.foreground_color)
+        && (lhs.background_color == rhs.background_color)
+        && (lhs.underline_color == rhs.underline_color)
+        && (lhs.underline_style == rhs.underline_style);
+}
+
+inline bool operator!=(const matching_style_t& lhs, const matching_style_t& rhs)
+{
+    return !(lhs == rhs);
+}
+
 using matching_style_list_t = std::vector<matching_style_t>;
 
 const matching_style_list_t& get_default_styles();
