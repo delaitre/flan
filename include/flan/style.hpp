@@ -13,37 +13,11 @@ enum class font_style_t
     italic,
 };
 
-constexpr const char* to_css_string(font_style_t font_style)
-{
-    switch (font_style)
-    {
-    case font_style_t::normal:
-        return "normal";
-    case font_style_t::italic:
-        return "italic";
-    }
-
-    return "normal";
-}
-
 enum class font_weight_t
 {
     normal,
     bold,
 };
-
-constexpr const char* to_css_string(font_weight_t font_weight)
-{
-    switch (font_weight)
-    {
-    case font_weight_t::normal:
-        return "normal";
-    case font_weight_t::bold:
-        return "bold";
-    }
-
-    return "normal";
-}
 
 struct matching_style_t
 {
@@ -64,6 +38,8 @@ inline bool operator!=(const matching_style_t& lhs, const matching_style_t& rhs)
 {
     return !(lhs == rhs);
 }
+
+QString to_css_string(const matching_style_t& style);
 
 using matching_style_list_t = std::vector<matching_style_t>;
 

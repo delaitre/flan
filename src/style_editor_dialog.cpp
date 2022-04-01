@@ -70,19 +70,7 @@ style_editor_dialog_t::style_editor_dialog_t(const matching_style_t& initial_sty
     };
 
     auto update_preview = [this]() {
-        _preview->setStyleSheet(
-            QString("QLabel { %1 %2 %3 %4 }")
-                .arg(
-                    _style.foreground_color.isValid() ?
-                        QString("color: %1;").arg(_style.foreground_color.name(QColor::HexArgb)) :
-                        "")
-                .arg(
-                    _style.background_color.isValid() ?
-                        QString("background-color: %1;")
-                            .arg(_style.background_color.name(QColor::HexArgb)) :
-                        "")
-                .arg(QString("font-style: %1;").arg(to_css_string(_style.font_style)))
-                .arg(QString("font-weight: %1;").arg(to_css_string(_style.font_weight))));
+        _preview->setStyleSheet(QString("QLabel { %1 }").arg(to_css_string(_style)));
     };
 
     auto update = [=]() {
