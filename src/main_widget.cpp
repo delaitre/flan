@@ -11,12 +11,12 @@ namespace flan
 {
 namespace
 {
-matching_rule_list_t get_rules_from_node(const base_node_t* node)
+styled_matching_rule_list_t get_styled_rules_from_node(const base_node_t* node)
 {
     if (!node)
         return {};
 
-    matching_rule_list_t rules;
+    styled_matching_rule_list_t rules;
 
     // Apply the rules of the children first, then the parent.
     // This is because often parents have generic rules while children have more specific ones.
@@ -30,7 +30,8 @@ matching_rule_list_t get_rules_from_node(const base_node_t* node)
             case node_type_t::group:
                 break;
             case node_type_t::rule:
-                rules.push_back(static_cast<const rule_node_t&>(node).rule());
+                rules.push_back(
+                    {static_cast<const rule_node_t&>(node).rule(), node.computed_styles()});
                 break;
             }
         });
@@ -68,7 +69,7 @@ void main_widget_t::set_model(rule_model_t* model)
 
     auto update_rules = [this, model]() {
         if (model)
-            _log->set_rules(get_rules_from_node(model->root()));
+            _log->set_rules(get_styled_rules_from_node(model->root()));
         else
             _log->set_rules({});
     };
@@ -85,10 +86,5 @@ void main_widget_t::set_model(rule_model_t* model)
 
     _rules->set_model(model);
     update_rules();
-}
-
-void main_widget_t::set_highlighting_style(matching_style_list_t styles)
-{
-    _log->set_highlighting_style(std::move(styles));
 }
 } // namespace flan

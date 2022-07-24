@@ -46,7 +46,7 @@ public:
 
 public slots:
 
-    void set_root(base_node_t* root);
+    void set_root(flan::base_node_t* root);
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent) const override;

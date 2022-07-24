@@ -44,36 +44,26 @@ QTextCharFormat to_qt(const matching_style_t& style)
 
 rule_highlighter_t::rule_highlighter_t(QTextDocument* parent)
     : QSyntaxHighlighter{parent}
-    , _styles{get_default_styles()}
 {
 }
 
-void rule_highlighter_t::set_rules(matching_rule_list_t rules)
+void rule_highlighter_t::set_rules(styled_matching_rule_list_t rules)
 {
     _rules = std::move(rules);
     rehighlight();
 }
 
-void rule_highlighter_t::set_style_list(matching_style_list_t styles)
-{
-    _styles = std::move(styles);
-    rehighlight();
-}
-
 void rule_highlighter_t::highlightBlock(const QString& text)
 {
-    if (_styles.empty())
-        return;
-
     // Iterator over the rules in reverse order to keep the first rule as highest priority.
     for (auto rule_it = std::rbegin(_rules); rule_it != std::rend(_rules); ++rule_it)
     {
-        const auto& rule = *rule_it;
+        const auto& styled_rule = *rule_it;
 
-        if (!rule.highlight_match)
+        if (!styled_rule.rule.highlight_match)
             continue;
 
-        QRegularExpressionMatchIterator match_it = rule.rule.globalMatch(text);
+        QRegularExpressionMatchIterator match_it = styled_rule.rule.rule.globalMatch(text);
         while (match_it.hasNext())
         {
             QRegularExpressionMatch match = match_it.next();
@@ -87,7 +77,7 @@ void rule_highlighter_t::highlightBlock(const QString& text)
                 setFormat(
                     match.capturedStart(i),
                     match.capturedLength(i),
-                    to_qt(_styles[style_index % _styles.size()]));
+                    to_qt(styled_rule.styles[style_index % styled_rule.styles.size()]));
             }
         }
     }

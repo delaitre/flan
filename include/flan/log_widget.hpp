@@ -1,8 +1,7 @@
 
 #pragma once
 
-#include <flan/matching_rule.hpp>
-#include <flan/style.hpp>
+#include <flan/styled_matching_rule.hpp>
 #include <QPlainTextEdit>
 
 namespace flan
@@ -23,9 +22,7 @@ public:
 
 public slots:
 
-    void set_rules(matching_rule_list_t rules);
-
-    void set_highlighting_style(matching_style_list_t styles);
+    void set_rules(flan::styled_matching_rule_list_t rules);
 
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -39,6 +36,6 @@ private slots:
 
 private:
     rule_highlighter_t* _highlighter = nullptr;
-    matching_rule_list_t _rules;
+    styled_matching_rule_list_t _rules;
 };
 } // namespace flan

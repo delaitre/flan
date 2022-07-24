@@ -30,6 +30,7 @@ set(SOURCES
     src/rule_highlighter.cpp
     include/flan/settings.hpp
     src/settings.cpp
+    include/flan/styled_matching_rule.hpp
     include/flan/rule_set.hpp
     src/rule_set.cpp
     include/flan/style.hpp

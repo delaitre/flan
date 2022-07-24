@@ -58,11 +58,6 @@ QString get_default_settings_file_for_rules()
     return QFileInfo{QDir{get_default_settings_directory()}, "rules.json"}.filePath();
 }
 
-QString get_default_settings_file_for_styles()
-{
-    return QFileInfo{QDir{get_default_settings_directory()}, "styles.json"}.filePath();
-}
-
 QVariant style_to_variant(const matching_style_t& style)
 {
     QVariantMap map;
@@ -347,25 +342,5 @@ base_node_uniq_t load_rules_from_json(QString file_path)
     file.close();
     auto variant = QJsonDocument::fromJson(json).toVariant();
     return rules_from_variant(variant);
-}
-
-void save_styles_to_json(const matching_style_list_t& styles, QString file_path)
-{
-    auto variant = styles_to_variant(styles);
-    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
-    QFile file{file_path};
-    file.open(QIODevice::WriteOnly);
-    file.write(json);
-    file.close();
-}
-
-matching_style_list_t load_styles_from_json(QString file_path)
-{
-    QFile file{file_path};
-    file.open(QIODevice::ReadOnly);
-    auto json = file.readAll();
-    file.close();
-    auto variant = QJsonDocument::fromJson(json).toVariant();
-    return styles_from_variant(variant);
 }
 } // namespace flan

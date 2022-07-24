@@ -21,8 +21,7 @@ public:
 public slots:
 
     void set_content(const QString& text);
-    void set_model(rule_model_t* model);
-    void set_highlighting_style(matching_style_list_t styles);
+    void set_model(flan::rule_model_t* model);
 
 private:
     rule_tree_widget_t* _rules = nullptr;

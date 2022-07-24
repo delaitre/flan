@@ -21,15 +21,10 @@ log_widget_t::log_widget_t(const QString& text, QWidget* parent)
     setMouseTracking(true);
 }
 
-void log_widget_t::set_rules(matching_rule_list_t rules)
+void log_widget_t::set_rules(styled_matching_rule_list_t rules)
 {
     _rules = std::move(rules);
     _highlighter->set_rules(_rules);
-}
-
-void log_widget_t::set_highlighting_style(matching_style_list_t styles)
-{
-    _highlighter->set_style_list(std::move(styles));
 }
 
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
@@ -67,12 +62,12 @@ QString log_widget_t::tooltip_at(QPoint position)
     QString tooltip_text; // An empty text will hide the tooltip.
 
     // This first rule matching has higher priority and is used for the tooltip.
-    for (const auto& rule: _rules)
+    for (const auto& styled_rule: _rules)
     {
-        if (!rule.highlight_match)
+        if (!styled_rule.rule.highlight_match)
             continue;
 
-        QRegularExpressionMatchIterator it = rule.rule.globalMatch(text);
+        QRegularExpressionMatchIterator it = styled_rule.rule.rule.globalMatch(text);
         while (it.hasNext() && tooltip_text.isEmpty())
         {
             QRegularExpressionMatch match = it.next();
@@ -85,7 +80,8 @@ QString log_widget_t::tooltip_at(QPoint position)
                     && position_in_block < match.capturedEnd(i))
                 {
                     // Use the rule tooltip if non empty, otherwise default to the rule name.
-                    tooltip_text = rule.tooltip.isEmpty() ? rule.name : rule.tooltip;
+                    tooltip_text = styled_rule.rule.tooltip.isEmpty() ? styled_rule.rule.name :
+                                                                        styled_rule.rule.tooltip;
                 }
             }
         }
@@ -104,18 +100,18 @@ void log_widget_t::apply_rules()
     for (auto block = doc->begin(); block.isValid(); block = block.next())
     {
         // Iterate over the rules in order and determine if the block should be visible or not.
-        for (auto& rule: _rules)
+        for (auto& styled_rule: _rules)
         {
             bool has_matched = false;
 
-            switch (rule.behaviour)
+            switch (styled_rule.rule.behaviour)
             {
             case filtering_behaviour_t::none:
                 // Don't change the block visibility.
                 break;
             case filtering_behaviour_t::remove_line:
                 // Mark the block as not visible if the rule matches.
-                if (rule.rule.globalMatch(block.text()).hasNext())
+                if (styled_rule.rule.rule.globalMatch(block.text()).hasNext())
                 {
                     block.setVisible(false);
                     has_matched = true;
@@ -123,7 +119,7 @@ void log_widget_t::apply_rules()
                 break;
             case filtering_behaviour_t::keep_line:
                 // Mark the block as visible if the rule matches.
-                if (rule.rule.globalMatch(block.text()).hasNext())
+                if (styled_rule.rule.rule.globalMatch(block.text()).hasNext())
                 {
                     block.setVisible(true);
                     has_matched = true;

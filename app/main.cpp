@@ -114,12 +114,6 @@ int main(int argc, char** argv)
     main_widget->set_model(&rule_model);
     main_widget->set_content(get_initial_text_log());
 
-    if (auto styles = load_styles_from_json(get_default_settings_file_for_styles());
-        !styles.empty())
-    {
-        main_widget->set_highlighting_style(std::move(styles));
-    }
-
     QMainWindow main_window;
     main_window.setWindowIcon(QIcon(":/icons/application"));
     main_window.setCentralWidget(main_widget);
