@@ -20,12 +20,17 @@ public:
     {
     }
 
+    //! Return the selected content as plain text with the lines matching removing rules being
+    //! excluded.
+    QString plain_text_with_rules_applied() const;
+
 public slots:
 
     void set_rules(flan::styled_matching_rule_list_t rules);
 
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
+    QMimeData* createMimeDataFromSelection() const override;
 
 private:
     QString tooltip_at(QPoint position);

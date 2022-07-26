@@ -1,7 +1,10 @@
 
 #include <flan/log_widget.hpp>
 #include <flan/rule_highlighter.hpp>
+#include <QAction>
 #include <QFont>
+#include <QMimeData>
+#include <QTextDocumentFragment>
 #include <QToolTip>
 
 namespace flan
@@ -51,6 +54,13 @@ void log_widget_t::mouseMoveEvent(QMouseEvent* event)
     QToolTip::showText(global_position, tooltip_text, this);
 
     event->accept();
+}
+
+QMimeData* log_widget_t::createMimeDataFromSelection() const
+{
+    QMimeData* data = new QMimeData();
+    data->setText(plain_text_with_rules_applied());
+    return data;
 }
 
 QString log_widget_t::tooltip_at(QPoint position)
@@ -141,5 +151,84 @@ void log_widget_t::apply_rules()
             }
         }
     }
+}
+
+QString log_widget_t::plain_text_with_rules_applied() const
+{
+    if (document()->isEmpty())
+        return {};
+
+    // We create a new document and then iterate over the source document selection block by block
+    // and copy over only the ones that are visible (the ones marked as invisible are not kept as it
+    // means they have been filtered out by a matching rule).
+
+    // Get the cursor positionned at the beginning of the selected content in the source document.
+    QTextCursor src_cursor = textCursor();
+
+    // If the cursor position is before the anchor, swap them to simplify iterating block by block
+    // below (this means we can just use NextBlock/StartOfBlock all the time rather than changing
+    // to PreviousBlock/EndOfBlock depending on the direction).
+    auto original_position = src_cursor.position();
+    auto original_anchor = src_cursor.anchor();
+    bool is_direction_inverted = (original_position < original_anchor);
+    if (is_direction_inverted)
+        std::swap(original_position, original_anchor);
+
+    // The new document which will contain only the selected and visible content.
+    QTextDocument dst_document;
+
+    // Position the cursor in the destination document at the very end.
+    QTextCursor dst_cursor{&dst_document};
+    dst_cursor.movePosition(QTextCursor::End);
+
+    // Iterate over each block in the source document from the original anchor position.
+    // We iterate up to the last block and then deal with the last block separately.
+    src_cursor.setPosition(original_anchor, QTextCursor::MoveAnchor);
+    auto last_block = document()->findBlock(original_position);
+    while (src_cursor.block() != last_block)
+    {
+        // If the block is visible, copy it in the destination. Otherwise skip it.
+        if (src_cursor.block().isVisible())
+        {
+            // First, select the whole block by moving the position to the start of the next
+            // block but keeping the anchor at the beginning of the current one.
+            src_cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+
+            // Copy the now selected content into the destination.
+            QTextDocumentFragment selection = src_cursor.selection();
+            dst_cursor.insertFragment(selection);
+
+            // Move the anchor position to the start of the next block to be processed (which is
+            // the current block the source cursor is on due to the movePosition call earlier).
+            // This moves the anchor to the current cursor position in the source so that it is
+            // ready to select the next block at the next iteration.
+            src_cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+        }
+        else
+        {
+            // Skip the block by moving both the position and the anchor to the next block.
+            src_cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+        }
+    }
+
+    // Process the last block.
+    if (src_cursor.block().isVisible())
+    {
+        // Make sure for the last block, we copy only up to the last selected character rather
+        // than the end of the block.
+        src_cursor.setPosition(original_position, QTextCursor::KeepAnchor);
+
+        // Copy the now selected content into the destination.
+        QTextDocumentFragment selection = src_cursor.selection();
+        dst_cursor.insertFragment(selection);
+    }
+
+    // Restore original anchor/position in source document.
+    if (is_direction_inverted)
+        std::swap(original_position, original_anchor);
+    src_cursor.setPosition(original_anchor, QTextCursor::MoveAnchor);
+    src_cursor.setPosition(original_position, QTextCursor::KeepAnchor);
+
+    return dst_document.toPlainText();
 }
 } // namespace flan
