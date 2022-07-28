@@ -17,6 +17,8 @@ if(NOT TARGET Qt::Core)
 endif()
 
 set(SOURCES
+    include/flan/elided_label.hpp
+    src/elided_label.cpp
     include/flan/main_widget.hpp
     src/main_widget.cpp
     include/flan/rule_tree_widget.hpp
