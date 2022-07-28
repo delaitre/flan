@@ -49,7 +49,15 @@ rule_highlighter_t::rule_highlighter_t(QTextDocument* parent)
 
 void rule_highlighter_t::set_rules(styled_matching_rule_list_t rules)
 {
-    _rules = std::move(rules);
+    // Only copy the rules with highlighting turns on has the other ones have no impact for the
+    // highlighter.
+    _rules.clear();
+    std::copy_if(
+        rules.begin(),
+        rules.end(),
+        std::back_inserter(_rules),
+        [](const styled_matching_rule_t& rule) { return rule.rule.highlight_match; });
+
     rehighlight();
 }
 
@@ -59,9 +67,6 @@ void rule_highlighter_t::highlightBlock(const QString& text)
     for (auto rule_it = std::rbegin(_rules); rule_it != std::rend(_rules); ++rule_it)
     {
         const auto& styled_rule = *rule_it;
-
-        if (!styled_rule.rule.highlight_match)
-            continue;
 
         QRegularExpressionMatchIterator match_it = styled_rule.rule.rule.globalMatch(text);
         while (match_it.hasNext())
