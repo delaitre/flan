@@ -1,4 +1,6 @@
 
+#include <flan/data_source_scratch_buffer.hpp>
+#include <flan/data_source_scratch_buffer_delegate.hpp>
 #include <flan/main_widget.hpp>
 #include <flan/matching_rule.hpp>
 #include <flan/rule_model.hpp>
@@ -113,6 +115,11 @@ int main(int argc, char** argv)
     auto main_widget = new main_widget_t;
     main_widget->set_model(&rule_model);
     main_widget->set_content(get_initial_text_log());
+
+    data_source_selection_widget_t::data_source_delegate_list_t data_source_list;
+    data_source_list.push_back(new data_source_scratch_buffer_delegate_t{
+        *(new data_source_scratch_buffer_t{main_widget}), main_widget});
+    main_widget->set_data_sources(std::move(data_source_list));
 
     QMainWindow main_window;
     main_window.setWindowIcon(QIcon(":/icons/application"));
