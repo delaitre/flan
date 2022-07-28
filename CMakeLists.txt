@@ -13,7 +13,7 @@ set(CMAKE_AUTOUIC ON)
 # This allows projects using flan to search for their own Qt version first and flan will happily use
 # the same.
 if(NOT TARGET Qt::Core)
-    find_package(Qt6 REQUIRED COMPONENTS Widgets)
+    find_package(Qt6 REQUIRED COMPONENTS Widgets SerialPort)
 endif()
 
 set(SOURCES
@@ -21,10 +21,14 @@ set(SOURCES
     src/data_source.cpp
     include/flan/data_source_scratch_buffer.hpp
     src/data_source_scratch_buffer.cpp
+    include/flan/data_source_serial_port.hpp
+    src/data_source_serial_port.cpp
     include/flan/data_source_delegate.hpp
     src/data_source_delegate.cpp
     include/flan/data_source_scratch_buffer_delegate.hpp
     src/data_source_scratch_buffer_delegate.cpp
+    include/flan/data_source_serial_port_delegate.hpp
+    src/data_source_serial_port_delegate.cpp
     include/flan/data_source_selection_widget.hpp
     src/data_source_selection_widget.cpp
     include/flan/elided_label.hpp
@@ -68,7 +72,7 @@ set(SOURCES
 add_library(flan SHARED ${SOURCES})
 target_include_directories(flan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(flan PUBLIC Qt::Widgets)
+target_link_libraries(flan PUBLIC Qt::Widgets PRIVATE Qt::SerialPort)
 
 option(FLAN_TEST_RULE_MODEL "Test the rule model as it is being exercised" FALSE)
 
