@@ -17,6 +17,12 @@ if(NOT TARGET Qt::Core)
 endif()
 
 set(SOURCES
+    include/flan/data_source.hpp
+    src/data_source.cpp
+    include/flan/data_source_delegate.hpp
+    src/data_source_delegate.cpp
+    include/flan/data_source_selection_widget.hpp
+    src/data_source_selection_widget.cpp
     include/flan/elided_label.hpp
     src/elided_label.cpp
     include/flan/main_widget.hpp
