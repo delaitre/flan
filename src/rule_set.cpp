@@ -21,4 +21,4 @@ const matching_style_list_t& base_node_t::computed_styles() const
     // Or return default styles if this is the root node.
     return get_default_styles();
 }
-}
+} // namespace flan
