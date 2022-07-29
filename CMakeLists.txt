@@ -33,6 +33,10 @@ set(SOURCES
     src/data_source_selection_widget.cpp
     include/flan/elided_label.hpp
     src/elided_label.cpp
+    include/flan/find_controller.hpp
+    src/find_controller.cpp
+    include/flan/find_widget.hpp
+    src/find_widget.cpp
     include/flan/main_widget.hpp
     src/main_widget.cpp
     include/flan/rule_tree_widget.hpp
