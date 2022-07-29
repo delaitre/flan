@@ -60,9 +60,7 @@ main_widget_t::main_widget_t(QWidget* parent)
     data_source_and_rules_separator->setFixedWidth(100);
 
     auto left_layout = new QVBoxLayout;
-    left_layout->setContentsMargins(0, 0, 0, 0);
-    left_layout->addWidget(_data_source);
-    left_layout->addWidget(data_source_and_rules_separator, 0, Qt::AlignCenter);
+    left_layout->setContentsMargins(0, 0, 2, 0);
     left_layout->addWidget(_rules);
 
     auto left_widget = new QWidget;
@@ -71,10 +69,15 @@ main_widget_t::main_widget_t(QWidget* parent)
     auto clear_button = new QPushButton{tr("Clear")};
     connect(clear_button, &QPushButton::clicked, _log, &log_widget_t::clear);
 
+    auto bottom_layout = new QHBoxLayout;
+    bottom_layout->setContentsMargins(0, 0, 0, 0);
+    bottom_layout->addWidget(_data_source, 1);
+    bottom_layout->addWidget(clear_button);
+
     auto right_layout = new QVBoxLayout;
-    right_layout->setContentsMargins(0, 0, 0, 0);
+    right_layout->setContentsMargins(2, 0, 0, 0);
     right_layout->addWidget(_log);
-    right_layout->addWidget(clear_button, 0, Qt::AlignRight);
+    right_layout->addLayout(bottom_layout);
 
     auto right_widget = new QWidget;
     right_widget->setLayout(right_layout);

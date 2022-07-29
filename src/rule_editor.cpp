@@ -41,6 +41,7 @@ rule_editor_t::rule_editor_t(QWidget* parent)
     , _style_list{new style_list_widget_t}
 {
     QFormLayout* layout = new QFormLayout;
+    layout->setContentsMargins(5, 0, 0, 0);
     layout->addRow(tr("Name"), _name_edit);
     layout->addRow(tr("Pattern"), _pattern_edit);
     layout->addRow(tr("Tooltip"), _tooltip_edit);

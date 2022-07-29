@@ -4,7 +4,6 @@
 #include <flan/elided_label.hpp>
 #include <QAction>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 
 namespace flan
 {
@@ -15,14 +14,13 @@ data_source_selection_widget_t::data_source_selection_widget_t(QWidget* parent)
     , _info_label{new elided_label_t}
     , _error_label{new elided_label_t}
 {
-    auto first_row_layout = new QHBoxLayout;
-    first_row_layout->addWidget(_data_source_combobox);
-    first_row_layout->addWidget(_configuration_button);
-
-    auto main_layout = new QVBoxLayout;
-    main_layout->addLayout(first_row_layout);
+    auto main_layout = new QHBoxLayout;
+    main_layout->setContentsMargins(0, 0, 0, 0);
+    main_layout->addWidget(_data_source_combobox);
+    main_layout->addWidget(_configuration_button);
     main_layout->addWidget(_info_label);
     main_layout->addWidget(_error_label);
+    main_layout->addStretch();
     setLayout(main_layout);
 
     auto info_label_font = _info_label->font();
@@ -133,7 +131,8 @@ void data_source_selection_widget_t::update_info_and_settings()
     _info_label->setToolTip(info_text);
     _error_label->set_text(error_text);
     _error_label->setToolTip(error_text);
-    _configuration_button->setEnabled(is_configuration_supported);
+    _error_label->setVisible(!error_text.isEmpty());
+    _configuration_button->setVisible(is_configuration_supported);
 
     emit current_data_source_changed(current_data_source);
 }

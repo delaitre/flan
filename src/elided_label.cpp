@@ -36,6 +36,8 @@ void elided_label_t::paintEvent(QPaintEvent* event)
     QFontMetrics font_metrics = painter.fontMetrics();
 
     painter.drawText(
-        0, font_metrics.ascent(), font_metrics.elidedText(_text, Qt::ElideMiddle, width()));
+        rect(),
+        Qt::AlignLeft | Qt::AlignVCenter,
+        font_metrics.elidedText(_text, Qt::ElideMiddle, width()));
 }
 } // namespace flan

@@ -14,6 +14,7 @@ rule_tree_widget_t::rule_tree_widget_t(QWidget* parent)
     , _rule_editor{new rule_editor_t}
 {
     auto main_layout = new QVBoxLayout;
+    main_layout->setContentsMargins(0, 0, 0, 0);
     main_layout->addWidget(_tree);
     main_layout->addWidget(_rule_editor);
     setLayout(main_layout);
