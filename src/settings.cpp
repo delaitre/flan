@@ -252,7 +252,7 @@ base_node_uniq_t rule_from_variant(const QVariant& variant)
     {
         auto name = map.value(settings_key_group_name).toString();
         if (name.isEmpty())
-            return {};
+            name = QObject::tr("New group");
 
         node = std::make_unique<group_node_t>(name);
     }
@@ -263,8 +263,9 @@ base_node_uniq_t rule_from_variant(const QVariant& variant)
         auto behaviour = map.value(settings_key_rule_behaviour).toString();
         auto highlight = map.value(settings_key_rule_highlight_match).toBool();
         auto tooltip = map.value(settings_key_rule_tooltip).toString();
-        if (name.isEmpty() || pattern.isEmpty() || behaviour.isEmpty())
-            return {};
+
+        if (name.isEmpty())
+            name = QObject::tr("New rule");
 
         filtering_behaviour_t filtering_behaviour = filtering_behaviour_t::none;
         if (behaviour == settings_key_rule_behaviour_none)
@@ -274,7 +275,7 @@ base_node_uniq_t rule_from_variant(const QVariant& variant)
         else if (behaviour == settings_key_rule_behaviour_keep_line)
             filtering_behaviour = filtering_behaviour_t::keep_line;
         else
-            return {};
+            filtering_behaviour = filtering_behaviour_t::none;
 
         node = std::make_unique<rule_node_t>(matching_rule_t{
             name, QRegularExpression{pattern}, filtering_behaviour, highlight, tooltip});
