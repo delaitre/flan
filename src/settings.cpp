@@ -337,7 +337,8 @@ void save_rules_to_json(const base_node_t& node, QString file_path)
 base_node_uniq_t load_rules_from_json(QString file_path)
 {
     QFile file{file_path};
-    file.open(QIODevice::ReadOnly);
+    if (!file.exists() || !file.open(QIODevice::ReadOnly))
+        return std::make_unique<base_node_t>();
     auto json = file.readAll();
     file.close();
     auto variant = QJsonDocument::fromJson(json).toVariant();
