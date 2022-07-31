@@ -1,10 +1,13 @@
 
 #include <flan/data_source.hpp>
+#include <flan/find_controller.hpp>
+#include <flan/find_widget.hpp>
 #include <flan/log_widget.hpp>
 #include <flan/main_widget.hpp>
 #include <flan/rule_model.hpp>
 #include <flan/rule_set.hpp>
 #include <flan/rule_tree_widget.hpp>
+#include <QAction>
 #include <QPushButton>
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -47,6 +50,8 @@ main_widget_t::main_widget_t(QWidget* parent)
     , _data_source{new data_source_selection_widget_t}
     , _rules{new rule_tree_widget_t}
     , _log{new log_widget_t}
+    , _find_controller{new find_controller_t{_log, this}}
+    , _find{new find_widget_t{_find_controller}}
 {
     connect(
         _data_source,
@@ -74,8 +79,11 @@ main_widget_t::main_widget_t(QWidget* parent)
     bottom_layout->addWidget(_data_source, 1);
     bottom_layout->addWidget(clear_button);
 
+    _find->setVisible(false);
+
     auto right_layout = new QVBoxLayout;
     right_layout->setContentsMargins(2, 0, 0, 0);
+    right_layout->addWidget(_find);
     right_layout->addWidget(_log);
     right_layout->addLayout(bottom_layout);
 
@@ -91,6 +99,19 @@ main_widget_t::main_widget_t(QWidget* parent)
     auto main_layout = new QVBoxLayout;
     main_layout->addWidget(splitter);
     setLayout(main_layout);
+
+    addAction(_find_controller->find_action());
+    addAction(_find_controller->next_action());
+    addAction(_find_controller->previous_action());
+
+    connect(_find_controller->find_action(), &QAction::triggered, this, [this]() {
+        _find->setVisible(true);
+    });
+
+    auto escape_action = new QAction{this};
+    escape_action->setShortcut(Qt::Key_Escape);
+    addAction(escape_action);
+    connect(escape_action, &QAction::triggered, this, [this]() { _find->setVisible(false); });
 }
 
 void main_widget_t::set_data_sources(
