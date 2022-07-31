@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonDocument>
+#include <QSaveFile>
 #include <QStandardPaths>
 #include <optional>
 
@@ -329,10 +330,10 @@ void save_rules_to_json(const base_node_t& node, QString file_path)
 {
     auto variant = rules_to_variant(node);
     auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
-    QFile file{file_path};
+    QSaveFile file{file_path};
     file.open(QIODevice::WriteOnly);
     file.write(json);
-    file.close();
+    file.commit();
 }
 
 base_node_uniq_t load_rules_from_json(QString file_path)
