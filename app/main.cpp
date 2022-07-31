@@ -3,6 +3,8 @@
 #include <flan/data_source_scratch_buffer_delegate.hpp>
 #include <flan/data_source_serial_port.hpp>
 #include <flan/data_source_serial_port_delegate.hpp>
+#include <flan/data_source_stdin.hpp>
+#include <flan/data_source_stdin_delegate.hpp>
 #include <flan/main_widget.hpp>
 #include <flan/matching_rule.hpp>
 #include <flan/rule_model.hpp>
@@ -121,6 +123,8 @@ int main(int argc, char** argv)
     data_source_selection_widget_t::data_source_delegate_list_t data_source_list;
     data_source_list.push_back(new data_source_scratch_buffer_delegate_t{
         *(new data_source_scratch_buffer_t{main_widget}), main_widget});
+    data_source_list.push_back(
+        new data_source_stdin_delegate_t{*(new data_source_stdin_t{main_widget}), main_widget});
     data_source_list.push_back(new data_source_serial_port_delegate_t{
         *(new data_source_serial_port_t{main_widget}), main_widget});
     main_widget->set_data_sources(std::move(data_source_list));
