@@ -2,6 +2,7 @@
 #include <flan/data_source.hpp>
 #include <flan/find_controller.hpp>
 #include <flan/find_widget.hpp>
+#include <flan/log_margin_area_widget.hpp>
 #include <flan/log_widget.hpp>
 #include <flan/main_widget.hpp>
 #include <flan/rule_model.hpp>
@@ -50,6 +51,7 @@ main_widget_t::main_widget_t(QWidget* parent)
     , _data_source{new data_source_selection_widget_t}
     , _rules{new rule_tree_widget_t}
     , _log{new log_widget_t}
+    , _log_margin{new log_margin_area_widget_t{_log}}
     , _find_controller{new find_controller_t{_log, this}}
     , _find{new find_widget_t{_find_controller}}
 {

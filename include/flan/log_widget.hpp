@@ -7,10 +7,17 @@
 namespace flan
 {
 class rule_highlighter_t;
+class log_margin_area_widget_t;
 
 class log_widget_t : public QPlainTextEdit
 {
     Q_OBJECT
+
+    // The margin widget needs access to protected functions to work properly.
+    // Both the log widget and the margin widget are designed to work together and having a friend
+    // avoids having to clutter the log widget API with seemingly random functions just to be able
+    // to implement the margin widget.
+    friend class log_margin_area_widget_t;
 
 public:
     log_widget_t(const QString& text, QWidget* parent = nullptr);

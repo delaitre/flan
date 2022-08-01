@@ -12,6 +12,7 @@ class rule_model_t;
 class data_source_selection_widget_t;
 class rule_tree_widget_t;
 class log_widget_t;
+class log_margin_area_widget_t;
 class find_widget_t;
 class data_source_t;
 class find_controller_t;
@@ -37,6 +38,7 @@ private:
     data_source_selection_widget_t* _data_source = nullptr;
     rule_tree_widget_t* _rules = nullptr;
     log_widget_t* _log = nullptr;
+    log_margin_area_widget_t* _log_margin = nullptr;
     find_controller_t* _find_controller = nullptr;
     find_widget_t* _find = nullptr;
 };

@@ -49,6 +49,8 @@ set(SOURCES
     src/rule_model.cpp
     include/flan/log_widget.hpp
     src/log_widget.cpp
+    include/flan/log_margin_area_widget.hpp
+    src/log_margin_area_widget.cpp
     include/flan/matching_rule.hpp
     include/flan/rule_highlighter.hpp
     src/rule_highlighter.cpp
