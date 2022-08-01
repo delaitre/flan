@@ -1,6 +1,5 @@
 
 #include <flan/data_source_serial_port.hpp>
-#include <QtDebug>
 
 namespace flan
 {
