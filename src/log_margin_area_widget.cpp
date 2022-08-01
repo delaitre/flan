@@ -13,6 +13,7 @@ static constexpr int _number_area_margin = 4;
 log_margin_area_widget_t::log_margin_area_widget_t(log_widget_t* log_widget)
     : QWidget{log_widget}
     , _log_widget{log_widget}
+    , _use_relative_value_action{new QAction{tr("Use relative value"), this}}
 {
     connect(
         _log_widget,
@@ -21,8 +22,22 @@ log_margin_area_widget_t::log_margin_area_widget_t(log_widget_t* log_widget)
         &log_margin_area_widget_t::update_width);
     connect(
         _log_widget, &log_widget_t::updateRequest, this, &log_margin_area_widget_t::update_area);
+    connect(_log_widget, &log_widget_t::cursorPositionChanged, this, [this]() {
+        if (use_relative_value())
+            update();
+    });
 
     update_width();
+
+    _use_relative_value_action->setCheckable(true);
+    connect(
+        _use_relative_value_action,
+        &QAction::toggled,
+        this,
+        &log_margin_area_widget_t::update_width);
+    addAction(_use_relative_value_action);
+
+    setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 int log_margin_area_widget_t::ideal_width() const
@@ -35,6 +50,9 @@ int log_margin_area_widget_t::ideal_width() const
         ++digits;
     }
 
+    if (use_relative_value())
+        ++digits; // for the '-' sign
+
     int space =
         3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits + _number_area_margin * 2;
 
@@ -43,7 +61,15 @@ int log_margin_area_widget_t::ideal_width() const
 
 QString log_margin_area_widget_t::text_for_block(const QTextBlock& block)
 {
-    return QString::number(block.blockNumber() + 1);
+    if (use_relative_value())
+        return QString::number(block.blockNumber() - _log_widget->textCursor().blockNumber());
+    else
+        return QString::number(block.blockNumber() + 1);
+}
+
+bool log_margin_area_widget_t::use_relative_value() const
+{
+    return _use_relative_value_action->isChecked();
 }
 
 void log_margin_area_widget_t::paintEvent(QPaintEvent* event)

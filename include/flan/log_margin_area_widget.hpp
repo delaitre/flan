@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <QAction>
 #include <QTextBlock>
 #include <QWidget>
 
@@ -17,13 +18,15 @@ public:
 
     QSize sizeHint() const override { return QSize(ideal_width(), 0); }
 
-    QString text_for_block(const QTextBlock& block);
+    QAction* use_relative_value_action() { return _use_relative_value_action; }
 
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
     int ideal_width() const;
+    QString text_for_block(const QTextBlock& block);
+    bool use_relative_value() const;
 
 private slots:
     void update_width();
@@ -31,5 +34,6 @@ private slots:
 
 private:
     log_widget_t* _log_widget = nullptr;
+    QAction* _use_relative_value_action = nullptr;
 };
 } // namespace flan
