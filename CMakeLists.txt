@@ -23,12 +23,16 @@ set(SOURCES
     src/data_source_scratch_buffer.cpp
     include/flan/data_source_serial_port.hpp
     src/data_source_serial_port.cpp
+    include/flan/data_source_stdin.hpp
+    src/data_source_stdin.cpp
     include/flan/data_source_delegate.hpp
     src/data_source_delegate.cpp
     include/flan/data_source_scratch_buffer_delegate.hpp
     src/data_source_scratch_buffer_delegate.cpp
     include/flan/data_source_serial_port_delegate.hpp
     src/data_source_serial_port_delegate.cpp
+    include/flan/data_source_stdin_delegate.hpp
+    src/data_source_stdin_delegate.cpp
     include/flan/data_source_selection_widget.hpp
     src/data_source_selection_widget.cpp
     include/flan/elided_label.hpp
@@ -71,6 +75,8 @@ set(SOURCES
     src/style_list_widget.cpp
     include/flan/pcre_cheatsheet_dialog.hpp
     src/pcre_cheatsheet_dialog.cpp
+    src/stdin_socket_notifier.hpp
+    src/stdin_socket_notifier.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
