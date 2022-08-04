@@ -122,6 +122,16 @@ void main_widget_t::set_data_sources(
     _data_source->set_data_sources(std::move(data_source_list));
 }
 
+const timestamp_format_list_t& main_widget_t::timestamp_formats() const
+{
+    return _log_margin->timestamp_formats();
+}
+
+void main_widget_t::set_timestamp_formats(timestamp_format_list_t formats)
+{
+    _log_margin->set_timestamp_formats(std::move(formats));
+}
+
 void main_widget_t::set_content(const QString& text)
 {
     _log->setPlainText(text);

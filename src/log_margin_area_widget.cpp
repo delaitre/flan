@@ -1,6 +1,7 @@
 
 #include <flan/log_margin_area_widget.hpp>
 #include <flan/log_widget.hpp>
+#include <flan/timestamp_format_settings_dialog.hpp>
 #include <QPainter>
 #include <QTime>
 
@@ -9,42 +10,6 @@ namespace flan
 namespace
 {
 static constexpr int _number_area_margin = 4;
-}
-
-log_margin_area_widget_t::log_margin_area_widget_t(log_widget_t* log_widget)
-    : QWidget{log_widget}
-    , _log_widget{log_widget}
-    , _use_relative_value_action{new QAction{tr("Use relative value"), this}}
-    , _use_timestamp_action{new QAction{tr("Use timestamp"), this}}
-{
-    connect(
-        _log_widget,
-        &log_widget_t::blockCountChanged,
-        this,
-        &log_margin_area_widget_t::update_width);
-    connect(
-        _log_widget, &log_widget_t::updateRequest, this, &log_margin_area_widget_t::update_area);
-    connect(_log_widget, &log_widget_t::cursorPositionChanged, this, [this]() {
-        if (use_relative_value())
-            update();
-    });
-
-    update_width();
-
-    _use_relative_value_action->setCheckable(true);
-    connect(
-        _use_relative_value_action,
-        &QAction::toggled,
-        this,
-        &log_margin_area_widget_t::update_width);
-    addAction(_use_relative_value_action);
-
-    _use_timestamp_action->setCheckable(true);
-    connect(
-        _use_timestamp_action, &QAction::toggled, this, &log_margin_area_widget_t::update_width);
-    addAction(_use_timestamp_action);
-
-    setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 int log_margin_area_widget_t::ideal_width() const
@@ -84,17 +49,56 @@ int log_margin_area_widget_t::ideal_width() const
     return width;
 }
 
-namespace
+log_margin_area_widget_t::log_margin_area_widget_t(log_widget_t* log_widget)
+    : QWidget{log_widget}
+    , _log_widget{log_widget}
+    , _use_relative_value_action{new QAction{tr("Use relative value"), this}}
+    , _use_timestamp_action{new QAction{tr("Use timestamp"), this}}
+    , _timestamp_format_settings_action{new QAction{tr("Timestamp formats..."), this}}
 {
-QTime get_block_timestamp(const QTextBlock& block)
-{
-    QRegularExpression time_regexp{"timestamp: ([0-9]+)"};
-    if (auto match = time_regexp.match(block.text()); match.hasMatch())
-        return QTime::fromMSecsSinceStartOfDay(match.captured(1).toInt());
+    connect(
+        _log_widget,
+        &log_widget_t::blockCountChanged,
+        this,
+        &log_margin_area_widget_t::update_width);
+    connect(
+        _log_widget, &log_widget_t::updateRequest, this, &log_margin_area_widget_t::update_area);
+    connect(_log_widget, &log_widget_t::cursorPositionChanged, this, [this]() {
+        if (use_relative_value())
+            update();
+    });
 
-    return {};
+    update_width();
+
+    _use_relative_value_action->setCheckable(true);
+    connect(
+        _use_relative_value_action,
+        &QAction::toggled,
+        this,
+        &log_margin_area_widget_t::update_width);
+    addAction(_use_relative_value_action);
+
+    _use_timestamp_action->setCheckable(true);
+    connect(
+        _use_timestamp_action, &QAction::toggled, this, &log_margin_area_widget_t::update_width);
+    addAction(_use_timestamp_action);
+
+    connect(
+        _timestamp_format_settings_action,
+        &QAction::triggered,
+        this,
+        &log_margin_area_widget_t::show_timestamp_format_settings_dialog);
+    addAction(_timestamp_format_settings_action);
+
+    setContextMenuPolicy(Qt::ActionsContextMenu);
 }
-} // namespace
+
+void log_margin_area_widget_t::set_timestamp_formats(timestamp_format_list_t formats)
+{
+    _timestamp_formats = std::move(formats);
+    if (use_timestamp())
+        update();
+}
 
 QString log_margin_area_widget_t::text_for_block(const QTextBlock& block)
 {
@@ -145,6 +149,30 @@ bool log_margin_area_widget_t::use_relative_value() const
 bool log_margin_area_widget_t::use_timestamp() const
 {
     return _use_timestamp_action->isChecked();
+}
+
+QTime log_margin_area_widget_t::get_block_timestamp(const QTextBlock& block) const
+{
+    for (const auto& format: _timestamp_formats)
+    {
+        if (auto match = format.regexp.match(block.text()); match.hasMatch())
+        {
+            // If the capture index does not correspond to anything, a null string is returned.
+            // If the conversion to int fails, 0 is returned.
+            // So in all cases, we end up with 0 in case something goes wrong which is what we
+            // need.
+            auto hours = std::chrono::hours{match.captured(format.hour_index).toInt()};
+            auto minutes = std::chrono::minutes{match.captured(format.minute_index).toInt()};
+            auto seconds = std::chrono::seconds{match.captured(format.second_index).toInt()};
+            auto milliseconds =
+                std::chrono::milliseconds{match.captured(format.millisecond_index).toInt()};
+
+            auto total = std::chrono::milliseconds{hours + minutes + seconds + milliseconds};
+            return QTime::fromMSecsSinceStartOfDay(total.count());
+        }
+    }
+
+    return {};
 }
 
 void log_margin_area_widget_t::paintEvent(QPaintEvent* event)
@@ -198,5 +226,21 @@ void log_margin_area_widget_t::update_area(const QRect& rect, int dy)
 
     if (rect.contains(_log_widget->viewport()->rect()))
         update_width();
+}
+
+void log_margin_area_widget_t::show_timestamp_format_settings_dialog()
+{
+    // Use the selected text as default test string. If nothing is selected, use the current
+    // line.
+    QString default_test_string = _log_widget->textCursor().selectedText();
+    if (default_test_string.isEmpty())
+        default_test_string = _log_widget->textCursor().block().text();
+
+    timestamp_format_settings_dialog_t dialog{default_test_string, this};
+    dialog.setModal(true);
+    dialog.set_formats(_timestamp_formats);
+
+    if (dialog.exec() == QDialog::Accepted)
+        set_timestamp_formats(dialog.formats());
 }
 } // namespace flan

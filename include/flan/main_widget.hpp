@@ -4,6 +4,7 @@
 #include <flan/data_source_selection_widget.hpp>
 #include <flan/matching_rule.hpp>
 #include <flan/style.hpp>
+#include <flan/timestamp_format.hpp>
 #include <QWidget>
 
 namespace flan
@@ -25,6 +26,9 @@ public:
     main_widget_t(QWidget* parent = nullptr);
     void set_data_sources(
         data_source_selection_widget_t::data_source_delegate_list_t data_source_list);
+
+    const timestamp_format_list_t& timestamp_formats() const;
+    void set_timestamp_formats(timestamp_format_list_t formats);
 
 public slots:
     void set_content(const QString& text);
