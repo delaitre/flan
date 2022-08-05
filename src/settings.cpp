@@ -39,6 +39,15 @@ static const auto settings_key_style_font_weight{"font_weight"};
 static const auto settings_key_style_font_weight_normal{"normal"};
 static const auto settings_key_style_font_weight_bold{"bold"};
 
+static const auto settings_key_timestamp_formats{"timestamp_formats"};
+static const auto settings_key_timestamp_formats_is_enabled{"is_enabled"};
+static const auto settings_key_timestamp_formats_name{"name"};
+static const auto settings_key_timestamp_formats_pattern{"pattern"};
+static const auto settings_key_timestamp_formats_hour_index{"hour_index"};
+static const auto settings_key_timestamp_formats_minute_index{"minute_index"};
+static const auto settings_key_timestamp_formats_second_index{"second_index"};
+static const auto settings_key_timestamp_formats_millisecond_index{"millisecond_index"};
+
 //! Cast an enum class value \a to its underlying type
 template <typename Enum>
 [[maybe_unused]] constexpr auto to_underlying(Enum e) noexcept
@@ -57,6 +66,11 @@ QString get_default_settings_directory()
 QString get_default_settings_file_for_rules()
 {
     return QFileInfo{QDir{get_default_settings_directory()}, "rules.json"}.filePath();
+}
+
+QString get_default_settings_file_for_timestamp_formats()
+{
+    return QFileInfo{QDir{get_default_settings_directory()}, "timestamp_formats.json"}.filePath();
 }
 
 QVariant style_to_variant(const matching_style_t& style)
@@ -345,5 +359,93 @@ base_node_uniq_t load_rules_from_json(QString file_path)
     file.close();
     auto variant = QJsonDocument::fromJson(json).toVariant();
     return rules_from_variant(variant);
+}
+
+QVariant timestmap_format_to_variant(const timestamp_format_t& format)
+{
+    QVariantMap map;
+
+    map[settings_key_timestamp_formats_is_enabled] = format.is_enabled;
+    map[settings_key_timestamp_formats_name] = format.name;
+    map[settings_key_timestamp_formats_pattern] = format.regexp.pattern();
+    map[settings_key_timestamp_formats_hour_index] = format.hour_index;
+    map[settings_key_timestamp_formats_minute_index] = format.minute_index;
+    map[settings_key_timestamp_formats_second_index] = format.second_index;
+    map[settings_key_timestamp_formats_millisecond_index] = format.millisecond_index;
+
+    return {map};
+}
+
+QVariant timestamp_formats_to_variant(const timestamp_format_list_t& formats)
+{
+    QVariantList format_list;
+    for (auto& format: formats)
+        format_list.append(timestmap_format_to_variant(format));
+
+    QVariantMap root;
+    root[settings_key_timestamp_formats] = format_list;
+
+    return {root};
+}
+
+void save_timestamp_formats_to_json(const timestamp_format_list_t& formats, QString file_path)
+{
+    auto variant = timestamp_formats_to_variant(formats);
+    auto json = QJsonDocument::fromVariant(variant).toJson(QJsonDocument::JsonFormat::Indented);
+    QSaveFile file{file_path};
+    file.open(QIODevice::WriteOnly);
+    file.write(json);
+    file.commit();
+}
+
+std::optional<timestamp_format_t> timestamp_format_from_variant(const QVariant& variant)
+{
+    if (!variant.canConvert<QVariantMap>())
+        return {};
+    auto map = variant.value<QVariantMap>();
+
+    timestamp_format_t format;
+    format.is_enabled = map.value(settings_key_timestamp_formats_is_enabled).toBool();
+    format.name = map.value(settings_key_timestamp_formats_name).toString();
+    format.regexp =
+        QRegularExpression{map.value(settings_key_timestamp_formats_pattern).toString()};
+    format.hour_index = map.value(settings_key_timestamp_formats_hour_index).toInt();
+    format.minute_index = map.value(settings_key_timestamp_formats_minute_index).toInt();
+    format.second_index = map.value(settings_key_timestamp_formats_second_index).toInt();
+    format.millisecond_index = map.value(settings_key_timestamp_formats_millisecond_index).toInt();
+
+    return format;
+}
+
+timestamp_format_list_t timestamp_formats_from_variant(const QVariant& variant)
+{
+    if (!variant.canConvert<QVariantMap>())
+        return {};
+    auto root_map = variant.value<QVariantMap>();
+
+    auto formats_variant = root_map.value(settings_key_timestamp_formats);
+    if (!formats_variant.canConvert<QVariantList>())
+        return {};
+    auto format_list = formats_variant.value<QVariantList>();
+
+    timestamp_format_list_t formats;
+    for (const auto& format_variant: format_list)
+    {
+        if (auto format = timestamp_format_from_variant(format_variant))
+            formats.push_back(*format);
+    }
+
+    return formats;
+}
+
+timestamp_format_list_t load_timestamp_formats_from_json(QString file_path)
+{
+    QFile file{file_path};
+    if (!file.exists() || !file.open(QIODevice::ReadOnly))
+        return {};
+    auto json = file.readAll();
+    file.close();
+    auto variant = QJsonDocument::fromJson(json).toVariant();
+    return timestamp_formats_from_variant(variant);
 }
 } // namespace flan
