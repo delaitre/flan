@@ -1,5 +1,6 @@
 
 #include <flan/timestamp_format.hpp>
+#include <chrono>
 
 namespace flan
 {
@@ -54,4 +55,28 @@ timestamp_format_list_t get_default_timestamp_formats()
 
     return list;
 }
+
+QTime timestamp_format_t::time_for(const QString& s) const
+{
+    if (!regexp.isValid())
+        return {};
+
+    if (auto match = regexp.match(s); match.hasMatch())
+    {
+        // If the capture index does not correspond to anything, a null string is returned.
+        // If the conversion to int fails, 0 is returned.
+        // So in all cases, we end up with 0 in case something goes wrong which is what we
+        // need.
+        auto hours = std::chrono::hours{match.captured(hour_index).toInt()};
+        auto minutes = std::chrono::minutes{match.captured(minute_index).toInt()};
+        auto seconds = std::chrono::seconds{match.captured(second_index).toInt()};
+        auto milliseconds = std::chrono::milliseconds{match.captured(millisecond_index).toInt()};
+
+        auto total = std::chrono::milliseconds{hours + minutes + seconds + milliseconds};
+        return QTime::fromMSecsSinceStartOfDay(total.count());
+    }
+
+    return {};
+}
+
 } // namespace flan

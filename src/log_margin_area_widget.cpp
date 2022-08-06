@@ -155,21 +155,8 @@ QTime log_margin_area_widget_t::get_block_timestamp(const QTextBlock& block) con
 {
     for (const auto& format: _timestamp_formats)
     {
-        if (auto match = format.regexp.match(block.text()); match.hasMatch())
-        {
-            // If the capture index does not correspond to anything, a null string is returned.
-            // If the conversion to int fails, 0 is returned.
-            // So in all cases, we end up with 0 in case something goes wrong which is what we
-            // need.
-            auto hours = std::chrono::hours{match.captured(format.hour_index).toInt()};
-            auto minutes = std::chrono::minutes{match.captured(format.minute_index).toInt()};
-            auto seconds = std::chrono::seconds{match.captured(format.second_index).toInt()};
-            auto milliseconds =
-                std::chrono::milliseconds{match.captured(format.millisecond_index).toInt()};
-
-            auto total = std::chrono::milliseconds{hours + minutes + seconds + milliseconds};
-            return QTime::fromMSecsSinceStartOfDay(total.count());
-        }
+        if (auto time = format.time_for(block.text()); time.isValid())
+            return time;
     }
 
     return {};

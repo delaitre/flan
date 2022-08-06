@@ -4,6 +4,7 @@
 #include <QMetaType>
 #include <QRegularExpression>
 #include <QString>
+#include <QTime>
 #include <vector>
 
 namespace flan
@@ -17,6 +18,8 @@ struct timestamp_format_t
     int minute_index = -1;
     int second_index = -1;
     int millisecond_index = -1;
+
+    QTime time_for(const QString& s) const;
 };
 
 QDataStream& operator<<(QDataStream& out, const timestamp_format_t& format);

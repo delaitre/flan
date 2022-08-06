@@ -273,34 +273,15 @@ void timestamp_format_settings_dialog_t::update_widgets_from_current_format()
 
         // The spinboxes use -1 for ignore/invalid which is also the value returned by
         // captureCount() if the regexp is invalid.
-        QRegularExpression regexp{format->regexp};
-        int capture_count = regexp.captureCount();
+        int capture_count = format->regexp.captureCount();
 
-        if (regexp.isValid())
+        if (auto time = format->time_for(_test_string_lineedit->text()); time.isValid())
         {
-            if (auto match = regexp.match(_test_string_lineedit->text()); match.hasMatch())
-            {
-                // If the capture index does not correspond to anything, a null string is returned.
-                // If the conversion to int fails, 0 is returned.
-                // So in all cases, we end up with 0 in case something goes wrong which is what we
-                // need.
-                hour_preview = match.captured(format->hour_index);
-                auto hours = std::chrono::hours{hour_preview.toInt()};
-
-                minute_preview = match.captured(format->minute_index);
-                auto minutes = std::chrono::minutes{minute_preview.toInt()};
-
-                second_preview = match.captured(format->second_index);
-                auto seconds = std::chrono::seconds{second_preview.toInt()};
-
-                millisecond_preview = match.captured(format->millisecond_index);
-                auto milliseconds = std::chrono::milliseconds{millisecond_preview.toInt()};
-
-                auto total = std::chrono::milliseconds{hours + minutes + seconds + milliseconds};
-                auto time = QTime::fromMSecsSinceStartOfDay(total.count());
-
-                combined_preview = time.toString(Qt::ISODateWithMs);
-            }
+            hour_preview = QString::number(time.hour());
+            minute_preview = QString::number(time.minute());
+            second_preview = QString::number(time.second());
+            millisecond_preview = QString::number(time.msec());
+            combined_preview = time.toString(Qt::ISODateWithMs);
         }
 
         _hour_widgets->update(true, capture_count, format->hour_index, hour_preview);
