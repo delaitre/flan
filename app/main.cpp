@@ -9,6 +9,7 @@
 #include <flan/matching_rule.hpp>
 #include <flan/rule_model.hpp>
 #include <flan/settings.hpp>
+#include <flan/timestamp_format.hpp>
 #include <QApplication>
 #include <QMainWindow>
 #include <QSettings>
@@ -65,6 +66,16 @@ base_node_uniq_t get_initial_rules()
     return root;
 }
 
+timestamp_format_list_t get_initial_timestamp_formats()
+{
+    timestamp_format_list_t formats =
+        load_timestamp_formats_from_json(get_default_settings_file_for_timestamp_formats());
+    if (formats.empty())
+        formats = get_default_timestamp_formats();
+
+    return formats;
+}
+
 QString get_initial_text_log()
 {
     // Define FLAN_USE_DEFAULT_TEXT_LOG to load a default text log.
@@ -112,13 +123,10 @@ int main(int argc, char** argv)
     auto rule_root = get_initial_rules();
     rule_model.set_root(rule_root.get());
 
-    app.connect(&app, &QApplication::aboutToQuit, &app, [rule_root = rule_root.get()]() {
-        save_rules_to_json(*rule_root, get_default_settings_file_for_rules());
-    });
-
     auto main_widget = new main_widget_t;
     main_widget->set_model(&rule_model);
     main_widget->set_content(get_initial_text_log());
+    main_widget->set_timestamp_formats(get_initial_timestamp_formats());
 
     data_source_selection_widget_t::data_source_delegate_list_t data_source_list;
     data_source_list.push_back(new data_source_scratch_buffer_delegate_t{
@@ -134,6 +142,14 @@ int main(int argc, char** argv)
     main_window.setCentralWidget(main_widget);
     main_window.resize(1200, 700);
     main_window.show();
+
+    app.connect(
+        &app, &QApplication::aboutToQuit, &app, [rule_root = rule_root.get(), main_widget]() {
+            save_rules_to_json(*rule_root, get_default_settings_file_for_rules());
+            save_timestamp_formats_to_json(
+                main_widget->timestamp_formats(),
+                get_default_settings_file_for_timestamp_formats());
+        });
 
     return app.exec();
 }

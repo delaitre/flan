@@ -49,6 +49,8 @@ set(SOURCES
     src/rule_model.cpp
     include/flan/log_widget.hpp
     src/log_widget.cpp
+    include/flan/log_margin_area_widget.hpp
+    src/log_margin_area_widget.cpp
     include/flan/matching_rule.hpp
     include/flan/rule_highlighter.hpp
     src/rule_highlighter.cpp
@@ -77,6 +79,10 @@ set(SOURCES
     src/pcre_cheatsheet_dialog.cpp
     src/stdin_socket_notifier.hpp
     src/stdin_socket_notifier.cpp
+    include/flan/timestamp_format.hpp
+    src/timestamp_format.cpp
+    include/flan/timestamp_format_settings_dialog.hpp
+    src/timestamp_format_settings_dialog.cpp
 )
 
 add_library(flan SHARED ${SOURCES})
