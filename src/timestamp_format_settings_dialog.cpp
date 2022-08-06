@@ -1,5 +1,7 @@
 
 #include <flan/timestamp_format_settings_dialog.hpp>
+#include <flan/valid_regular_expression_validator.hpp>
+#include <flan/validated_lineedit.hpp>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QGridLayout>
@@ -100,7 +102,8 @@ timestamp_format_settings_dialog_t::timestamp_format_settings_dialog_t(
     auto current_groupbox = new QGroupBox{tr("Current format")};
     _name_lineedit = new QLineEdit;
     _name_lineedit->setToolTip(tr("Name"));
-    _pattern_lineedit = new QLineEdit;
+    _pattern_lineedit = new validated_lineedit_t;
+    _pattern_lineedit->setValidator(new valid_regular_expression_validator_t{_pattern_lineedit});
     _pattern_lineedit->setToolTip(tr("Pattern used to extract individual timestamp information"));
     _hour_widgets = new component_capture_widgets_t{tr("hours")};
     _minute_widgets = new component_capture_widgets_t{tr("minutes")};
