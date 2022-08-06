@@ -1,5 +1,7 @@
 
 #include <flan/find_widget.hpp>
+#include <flan/valid_regular_expression_validator.hpp>
+#include <flan/validated_lineedit.hpp>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QRegularExpression>
@@ -9,13 +11,14 @@ namespace flan
 find_widget_t::find_widget_t(find_controller_t* controller, QWidget* parent)
     : QWidget{parent}
     , _controller{controller}
-    , _pattern_lineedit{new QLineEdit}
+    , _pattern_lineedit{new validated_lineedit_t}
     , _case_sensitivity_checkbox{new QCheckBox{_controller->is_case_sensitive_action()->text()}}
     , _regexp_checkbox{new QCheckBox{_controller->use_regexp_action()->text()}}
     , _previous_button{new QPushButton{_controller->previous_action()->text()}}
     , _next_button{new QPushButton{_controller->next_action()->text()}}
 {
     _pattern_lineedit->setMinimumWidth(200);
+    _pattern_lineedit->setValidator(new valid_regular_expression_validator_t{_pattern_lineedit});
 
     auto layout = new QHBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -41,26 +44,17 @@ find_widget_t::find_widget_t(find_controller_t* controller, QWidget* parent)
         _controller->use_regexp_action(),
         &QAction::setChecked);
     connect(
+        _controller->use_regexp_action(),
+        &QAction::toggled,
+        _pattern_lineedit,
+        &validated_lineedit_t::set_validity_check_enabled);
+    _pattern_lineedit->set_validity_check_enabled(_controller->use_regexp_action()->isChecked());
+    connect(
         _previous_button, &QPushButton::clicked, _controller->previous_action(), &QAction::trigger);
     connect(_next_button, &QPushButton::clicked, _controller->next_action(), &QAction::trigger);
 
     connect(_controller, &find_controller_t::pattern_changed, this, [this](QString pattern) {
         _pattern_lineedit->setText(pattern);
-        update_regexp_validity(_controller->is_pattern_valid());
     });
-}
-
-void find_widget_t::update_regexp_validity(bool is_valid)
-{
-    // Update the base color if the current pattern is invalid
-    QPalette palette = _pattern_lineedit->parentWidget()->palette();
-    if (!is_valid)
-    {
-        QColor invalid_color{0xff, 0x80, 0x80};
-        palette.setColor(QPalette::Active, QPalette::Base, invalid_color);
-        palette.setColor(QPalette::Inactive, QPalette::Base, invalid_color);
-    }
-
-    _pattern_lineedit->setPalette(palette);
 }
 } // namespace flan

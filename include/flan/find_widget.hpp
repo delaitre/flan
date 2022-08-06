@@ -9,6 +9,8 @@
 
 namespace flan
 {
+class validated_lineedit_t;
+
 class find_widget_t : public QWidget
 {
     Q_OBJECT
@@ -16,12 +18,9 @@ class find_widget_t : public QWidget
 public:
     find_widget_t(find_controller_t* controller, QWidget* parent = nullptr);
 
-private slots:
-    void update_regexp_validity(bool is_valid);
-
 private:
     find_controller_t* _controller;
-    QLineEdit* _pattern_lineedit;
+    validated_lineedit_t* _pattern_lineedit;
     QCheckBox* _case_sensitivity_checkbox;
     QCheckBox* _regexp_checkbox;
     QPushButton* _previous_button;

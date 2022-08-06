@@ -83,6 +83,8 @@ set(SOURCES
     src/timestamp_format.cpp
     include/flan/timestamp_format_settings_dialog.hpp
     src/timestamp_format_settings_dialog.cpp
+    include/flan/validated_lineedit.hpp
+    src/validated_lineedit.cpp
 )
 
 add_library(flan SHARED ${SOURCES})

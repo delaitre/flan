@@ -12,6 +12,7 @@
 
 namespace flan
 {
+class validated_lineedit_t;
 
 class timestamp_format_settings_dialog_t : public QDialog
 {
@@ -53,7 +54,7 @@ private:
     QAction* _remove_format_action;
 
     QLineEdit* _name_lineedit;
-    QLineEdit* _pattern_lineedit;
+    validated_lineedit_t* _pattern_lineedit;
     component_capture_widgets_t* _hour_widgets;
     component_capture_widgets_t* _minute_widgets;
     component_capture_widgets_t* _second_widgets;

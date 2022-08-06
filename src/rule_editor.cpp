@@ -5,6 +5,7 @@
 #include <flan/rule_set.hpp>
 #include <flan/style_list_widget.hpp>
 #include <flan/valid_regular_expression_validator.hpp>
+#include <flan/validated_lineedit.hpp>
 #include <QAction>
 #include <QFormLayout>
 #include <QLineEdit>
@@ -36,7 +37,7 @@ namespace flan
 rule_editor_t::rule_editor_t(QWidget* parent)
     : QWidget{parent}
     , _name_edit{new QLineEdit}
-    , _pattern_edit{new QLineEdit}
+    , _pattern_edit{new validated_lineedit_t}
     , _tooltip_edit{new QLineEdit}
     , _style_list{new style_list_widget_t}
 {
@@ -60,8 +61,6 @@ rule_editor_t::rule_editor_t(QWidget* parent)
         &rule_editor_t::show_pcre_cheatsheet_dialog);
 
     _pattern_edit->setValidator(new valid_regular_expression_validator_t{_pattern_edit});
-    connect(_pattern_edit, &QLineEdit::textEdited, this, &rule_editor_t::update_pattern_validity);
-    update_pattern_validity();
 
     _tooltip_edit->setPlaceholderText(tr("Leave empty to default to the name"));
 
@@ -86,8 +85,6 @@ void rule_editor_t::set_model(QAbstractItemModel* model)
     _mapper.addMapping(_pattern_edit, rule_model_t::pattern_column_index);
     _mapper.addMapping(_tooltip_edit, rule_model_t::tooltip_column_index);
     _mapper.addMapping(_style_list, rule_model_t::styles_column_index, "styles");
-
-    update_pattern_validity();
 }
 
 void rule_editor_t::set_current_model_index(const QModelIndex& index)
@@ -125,40 +122,6 @@ void rule_editor_t::set_current_model_index(const QModelIndex& index)
         _pattern_edit->setEnabled(false);
         _tooltip_edit->setEnabled(false);
     }
-
-    update_pattern_validity();
-}
-
-void rule_editor_t::update_pattern_validity()
-{
-    QString text = _pattern_edit->text();
-    int position = _pattern_edit->cursorPosition();
-    switch (_pattern_edit->validator()->validate(text, position))
-    {
-    case QValidator::Invalid:
-        [[fallthrough]];
-    case QValidator::Intermediate:
-        update_pattern_palette(false);
-        break;
-    case QValidator::Acceptable:
-        update_pattern_palette(true);
-        break;
-    }
-}
-
-void rule_editor_t::update_pattern_palette(bool is_pattern_valid)
-{
-    QPalette palette = _pattern_edit->parentWidget()->palette();
-
-    // Update the base color if the current pattern is invalid
-    if (!is_pattern_valid)
-    {
-        QColor invalid_color{0xff, 0x80, 0x80};
-        palette.setColor(QPalette::Active, QPalette::Base, invalid_color);
-        palette.setColor(QPalette::Inactive, QPalette::Base, invalid_color);
-    }
-
-    _pattern_edit->setPalette(palette);
 }
 
 void rule_editor_t::show_pcre_cheatsheet_dialog()
