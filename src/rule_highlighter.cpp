@@ -68,6 +68,9 @@ void rule_highlighter_t::highlightBlock(const QString& text)
     {
         const auto& styled_rule = *rule_it;
 
+        if (!styled_rule.rule.rule.isValid())
+            continue;
+
         QRegularExpressionMatchIterator match_it = styled_rule.rule.rule.globalMatch(text);
         while (match_it.hasNext())
         {

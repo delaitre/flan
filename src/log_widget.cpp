@@ -77,6 +77,9 @@ QString log_widget_t::tooltip_at(QPoint position)
         if (!styled_rule.rule.highlight_match)
             continue;
 
+        if (!styled_rule.rule.rule.isValid())
+            continue;
+
         QRegularExpressionMatchIterator it = styled_rule.rule.rule.globalMatch(text);
         while (it.hasNext() && tooltip_text.isEmpty())
         {
@@ -112,6 +115,9 @@ void log_widget_t::apply_rules()
         // Iterate over the rules in order and determine if the block should be visible or not.
         for (auto& styled_rule: _rules)
         {
+            if (!styled_rule.rule.rule.isValid())
+                continue;
+
             bool has_matched = false;
 
             switch (styled_rule.rule.behaviour)
