@@ -32,6 +32,9 @@ void log_widget_t::set_rules(styled_matching_rule_list_t rules)
 
 void log_widget_t::append_text(const QString& text)
 {
+    if (_is_paused)
+        return;
+
     const QTextCursor old_cursor = textCursor();
     const int old_scrollbar_value = verticalScrollBar()->value();
     const bool is_scrolled_down = (old_scrollbar_value == verticalScrollBar()->maximum());
@@ -55,6 +58,11 @@ void log_widget_t::append_text(const QString& text)
         moveCursor(QTextCursor::End);
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     }
+}
+
+void log_widget_t::set_paused(bool is_paused)
+{
+    _is_paused = is_paused;
 }
 
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
