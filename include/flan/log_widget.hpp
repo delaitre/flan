@@ -41,6 +41,9 @@ public slots:
     //! is not at the bottom. Otherwise, the log is scrolled to the bottom after the text is added.
     void append_text(const QString& text);
 
+    //! Pause appending text to the log is \a is_paused is \c true otherwise restart appending text.
+    void set_paused(bool is_paused);
+
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     QMimeData* createMimeDataFromSelection() const override;
@@ -55,5 +58,6 @@ private slots:
 private:
     rule_highlighter_t* _highlighter = nullptr;
     styled_matching_rule_list_t _rules;
+    bool _is_paused = false;
 };
 } // namespace flan

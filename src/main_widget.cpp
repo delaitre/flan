@@ -73,12 +73,17 @@ main_widget_t::main_widget_t(QWidget* parent)
     auto left_widget = new QWidget;
     left_widget->setLayout(left_layout);
 
+    auto pause_button = new QPushButton{tr("Pause")};
+    pause_button->setCheckable(true);
+    connect(pause_button, &QPushButton::toggled, _log, &log_widget_t::set_paused);
+
     auto clear_button = new QPushButton{tr("Clear")};
     connect(clear_button, &QPushButton::clicked, _log, &log_widget_t::clear);
 
     auto bottom_layout = new QHBoxLayout;
     bottom_layout->setContentsMargins(0, 0, 0, 0);
     bottom_layout->addWidget(_data_source, 1);
+    bottom_layout->addWidget(pause_button);
     bottom_layout->addWidget(clear_button);
 
     _find->setVisible(false);
