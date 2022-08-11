@@ -30,6 +30,33 @@ void log_widget_t::set_rules(styled_matching_rule_list_t rules)
     _highlighter->set_rules(_rules);
 }
 
+void log_widget_t::append_text(const QString& text)
+{
+    const QTextCursor old_cursor = textCursor();
+    const int old_scrollbar_value = verticalScrollBar()->value();
+    const bool is_scrolled_down = (old_scrollbar_value == verticalScrollBar()->maximum());
+
+    // Move the cursor to the end of the document and insert the text at the end.
+    moveCursor(QTextCursor::End);
+    textCursor().insertText(text);
+
+    if (old_cursor.hasSelection() || !is_scrolled_down)
+    {
+        // The user has selected some text or scrolled away from the bottom so restore the previous
+        // position so that when text is appended the user can still move to a different area of the
+        // log.
+        setTextCursor(old_cursor);
+        verticalScrollBar()->setValue(old_scrollbar_value);
+    }
+    else
+    {
+        // The user hasn't selected any text and the scrollbar is at the bottom so scroll to the
+        // bottom.
+        moveCursor(QTextCursor::End);
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    }
+}
+
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
 {
     // If buttons are pressed, use the base class implementation.

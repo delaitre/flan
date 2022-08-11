@@ -172,16 +172,10 @@ void main_widget_t::on_current_data_source_changed(data_source_t* data_source)
     if (_current_data_source)
     {
         connect(_current_data_source, &data_source_t::new_text, _log, [this](auto text) {
-            // QPlainTextEdit::appendPlainText() adds a new line which we don't want so we have to
-            // move the cursor to the end, insert our text and restore the previous location
-            // instead.
-            QTextCursor previous_cursor = _log->textCursor();
-            _log->moveCursor(QTextCursor::End);
-            _log->insertPlainText(text);
-            _log->setTextCursor(previous_cursor);
+            _log->append_text(text);
         });
         _log->clear();
-        _log->appendPlainText(_current_data_source->text());
+        _log->append_text(_current_data_source->text());
     }
 }
 } // namespace flan
