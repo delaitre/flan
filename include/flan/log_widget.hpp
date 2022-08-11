@@ -3,6 +3,7 @@
 
 #include <flan/styled_matching_rule.hpp>
 #include <QPlainTextEdit>
+#include <QScrollBar>
 
 namespace flan
 {
@@ -32,8 +33,13 @@ public:
     QString plain_text_with_rules_applied() const;
 
 public slots:
-
     void set_rules(flan::styled_matching_rule_list_t rules);
+
+    //! Append the \a text at the end of the log.
+    //!
+    //! The current scroll position is kept if the log has some selection or if the current cursor
+    //! is not at the bottom. Otherwise, the log is scrolled to the bottom after the text is added.
+    void append_text(const QString& text);
 
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
