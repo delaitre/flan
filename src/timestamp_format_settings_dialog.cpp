@@ -269,29 +269,23 @@ void timestamp_format_settings_dialog_t::update_widgets_from_current_format()
         update_lineedit_and_restore_cursor(_name_lineedit, format->name);
         update_lineedit_and_restore_cursor(_pattern_lineedit, format->regexp.pattern());
 
-        QString hour_preview;
-        QString minute_preview;
-        QString second_preview;
-        QString millisecond_preview;
-
         // The spinboxes use -1 for ignore/invalid which is also the value returned by
         // captureCount() if the regexp is invalid.
         int capture_count = format->regexp.captureCount();
 
-        if (auto time = format->time_for(_test_string_lineedit->text()); time.isValid())
-        {
-            hour_preview = QString::number(time.hour());
-            minute_preview = QString::number(time.minute());
-            second_preview = QString::number(time.second());
-            millisecond_preview = QString::number(time.msec());
-            combined_preview = time.toString(Qt::ISODateWithMs);
-        }
+        auto test_string = _test_string_lineedit->text();
 
-        _hour_widgets->update(true, capture_count, format->hour_index, hour_preview);
-        _minute_widgets->update(true, capture_count, format->minute_index, minute_preview);
-        _second_widgets->update(true, capture_count, format->second_index, second_preview);
+        _hour_widgets->update(
+            true, capture_count, format->hour_index, format->match_hour(test_string));
+        _minute_widgets->update(
+            true, capture_count, format->minute_index, format->match_minute(test_string));
+        _second_widgets->update(
+            true, capture_count, format->second_index, format->match_second(test_string));
         _millisecond_widgets->update(
-            true, capture_count, format->millisecond_index, millisecond_preview);
+            true, capture_count, format->millisecond_index, format->match_millisecond(test_string));
+
+        if (auto time = format->time_for(test_string); time.isValid())
+            combined_preview = time.toString(Qt::ISODateWithMs);
     }
     else
     {

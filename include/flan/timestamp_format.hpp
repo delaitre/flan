@@ -19,7 +19,15 @@ struct timestamp_format_t
     int second_index = -1;
     int millisecond_index = -1;
 
+    QString match_hour(const QString& s) const;
+    QString match_minute(const QString& s) const;
+    QString match_second(const QString& s) const;
+    QString match_millisecond(const QString& s) const;
+
     QTime time_for(const QString& s) const;
+
+private:
+    QString match_index(const QString& s, int index) const;
 };
 
 QDataStream& operator<<(QDataStream& out, const timestamp_format_t& format);

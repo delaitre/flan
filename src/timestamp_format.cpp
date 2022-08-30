@@ -56,27 +56,55 @@ timestamp_format_list_t get_default_timestamp_formats()
     return list;
 }
 
+QString timestamp_format_t::match_hour(const QString& s) const
+{
+    return match_index(s, hour_index);
+}
+
+QString timestamp_format_t::match_minute(const QString& s) const
+{
+    return match_index(s, minute_index);
+}
+
+QString timestamp_format_t::match_second(const QString& s) const
+{
+    return match_index(s, second_index);
+}
+
+QString timestamp_format_t::match_millisecond(const QString& s) const
+{
+    return match_index(s, millisecond_index);
+}
+
 QTime timestamp_format_t::time_for(const QString& s) const
 {
     if (!regexp.isValid())
         return {};
 
-    if (auto match = regexp.match(s); match.hasMatch())
-    {
-        // If the capture index does not correspond to anything, a null string is returned.
-        // If the conversion to int fails, 0 is returned.
-        // So in all cases, we end up with 0 in case something goes wrong which is what we
-        // need.
-        auto hours = std::chrono::hours{match.captured(hour_index).toInt()};
-        auto minutes = std::chrono::minutes{match.captured(minute_index).toInt()};
-        auto seconds = std::chrono::seconds{match.captured(second_index).toInt()};
-        auto milliseconds = std::chrono::milliseconds{match.captured(millisecond_index).toInt()};
+    if (auto match = regexp.match(s); !match.hasMatch())
+        return {};
 
-        auto total = std::chrono::milliseconds{hours + minutes + seconds + milliseconds};
-        return QTime::fromMSecsSinceStartOfDay(total.count());
-    }
+    // If the capture index does not correspond to anything, a null string is returned.
+    // If the conversion to int fails, 0 is returned.
+    // So in all cases, we end up with 0 in case something goes wrong which is what we
+    // need.
+    auto hours = std::chrono::hours{match_hour(s).toInt()};
+    auto minutes = std::chrono::minutes{match_minute(s).toInt()};
+    auto seconds = std::chrono::seconds{match_second(s).toInt()};
+    auto milliseconds = std::chrono::milliseconds{match_millisecond(s).toInt()};
+
+    auto total = std::chrono::milliseconds{hours + minutes + seconds + milliseconds};
+    return QTime::fromMSecsSinceStartOfDay(total.count());
+}
+
+QString timestamp_format_t::match_index(const QString& s, int index) const
+{
+    if (!regexp.isValid())
+        return {};
+
+    if (auto match = regexp.match(s); match.hasMatch())
+        return match.captured(index);
 
     return {};
 }
-
 } // namespace flan
