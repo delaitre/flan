@@ -1,10 +1,8 @@
 
-#include <flan/data_source_scratch_buffer.hpp>
-#include <flan/data_source_scratch_buffer_delegate.hpp>
-#include <flan/data_source_serial_port.hpp>
-#include <flan/data_source_serial_port_delegate.hpp>
-#include <flan/data_source_stdin.hpp>
-#include <flan/data_source_stdin_delegate.hpp>
+#include <flan/data_source_delegate.hpp>
+#include <flan/data_source_delegate_provider_scratch_buffer.hpp>
+#include <flan/data_source_delegate_provider_serial_port.hpp>
+#include <flan/data_source_delegate_provider_stdin.hpp>
 #include <flan/main_widget.hpp>
 #include <flan/matching_rule.hpp>
 #include <flan/rule_model.hpp>
@@ -128,14 +126,37 @@ int main(int argc, char** argv)
     main_widget->set_content(get_initial_text_log());
     main_widget->set_timestamp_formats(get_initial_timestamp_formats());
 
-    data_source_selection_widget_t::data_source_delegate_list_t data_source_list;
-    data_source_list.push_back(new data_source_scratch_buffer_delegate_t{
-        *(new data_source_scratch_buffer_t{main_widget}), main_widget});
-    data_source_list.push_back(
-        new data_source_stdin_delegate_t{*(new data_source_stdin_t{main_widget}), main_widget});
-    data_source_list.push_back(new data_source_serial_port_delegate_t{
-        *(new data_source_serial_port_t{main_widget}), main_widget});
-    main_widget->set_data_sources(std::move(data_source_list));
+    std::vector<data_source_delegate_provider_t*> provider_list;
+    data_source_delegate_provider_scratch_buffer_t scratch_buffer_provider;
+    provider_list.push_back(&scratch_buffer_provider);
+    data_source_delegate_provider_stdin_t stdin_provider;
+    provider_list.push_back(&stdin_provider);
+    data_source_delegate_provider_serial_port_t serial_port_provider;
+    provider_list.push_back(&serial_port_provider);
+
+    auto update_aggregated_delegate = [&]() {
+        std::vector<data_source_delegate_t*> delegates;
+        auto append_delegates = [&](data_source_delegate_provider_t& provider) {
+            auto new_delegates = provider.delegates();
+            delegates.insert(delegates.end(), new_delegates.begin(), new_delegates.end());
+        };
+
+        for (auto provider: provider_list)
+            append_delegates(*provider);
+
+        main_widget->set_data_sources(std::move(delegates));
+    };
+
+    for (auto provider: provider_list)
+    {
+        QObject::connect(
+            provider,
+            &data_source_delegate_provider_t::data_source_delegates_changed,
+            main_widget,
+            update_aggregated_delegate);
+    }
+
+    update_aggregated_delegate();
 
     QMainWindow main_window;
     main_window.setWindowIcon(QIcon(":/icons/application"));

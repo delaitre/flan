@@ -1,9 +1,14 @@
 
+#include <flan/data_source_delegate_serial_port.hpp>
 #include <flan/data_source_serial_port.hpp>
-#include <flan/data_source_serial_port_delegate.hpp>
+#include <QAction>
 #include <QComboBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QtSerialPort/QSerialPortInfo>
 
@@ -17,28 +22,70 @@ void make_combobox_data_current(QComboBox& combobox, QVariant data)
 }
 } // namespace
 
-data_source_serial_port_delegate_t::data_source_serial_port_delegate_t(
+data_source_delegate_serial_port_t::data_source_delegate_serial_port_t(
     data_source_serial_port_t& data_source,
     QObject* parent)
-    : data_source_delegate_t{tr("Serial port"), data_source, parent}
+    : data_source_delegate_t{data_source, parent}
     , _data_source_serial_port{data_source}
 {
 }
 
-QDialog* data_source_serial_port_delegate_t::settings_dialog(QWidget* parent)
+QWidget* data_source_delegate_serial_port_t::create_view(QWidget* parent) const
+{
+    auto open_button = new QPushButton{tr("Open")};
+    open_button->setCheckable(true);
+
+    auto settings_button = new QToolButton;
+    settings_button->setAutoRaise(true);
+    settings_button->setToolButtonStyle(Qt::ToolButtonTextOnly);
+
+    auto settings_button_font = settings_button->font();
+    settings_button_font.setItalic(true);
+    settings_button->setFont(settings_button_font);
+
+    auto layout = new QHBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(open_button);
+    layout->addWidget(settings_button);
+
+    auto main_widget = new QWidget{parent};
+    main_widget->setLayout(layout);
+
+    connect(open_button, &QPushButton::toggled, this, [this](bool checked) {
+        if (checked)
+            _data_source_serial_port.open();
+        else
+            _data_source_serial_port.close();
+    });
+
+    connect(
+        &_data_source_serial_port,
+        &data_source_serial_port_t::is_open_changed,
+        open_button,
+        &QPushButton::setChecked);
+    open_button->setChecked(_data_source_serial_port.is_open());
+
+    auto settings_action = new QAction{tr("Configure the serial port"), settings_button};
+    settings_button->setDefaultAction(settings_action);
+    connect(settings_button, &QToolButton::triggered, this, [this, settings_button]() {
+        auto dialog = settings_dialog(settings_button);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->open();
+    });
+
+    connect(
+        &_data_source_serial_port,
+        &data_source_serial_port_t::info_changed,
+        settings_action,
+        &QAction::setText);
+    settings_action->setText(_data_source_serial_port.info());
+
+    return main_widget;
+}
+
+QDialog* data_source_delegate_serial_port_t::settings_dialog(QWidget* parent) const
 {
     auto& settings = _data_source_serial_port.settings();
-
-    auto port_selection_combobox = new QComboBox;
-    for (auto& port: QSerialPortInfo::availablePorts())
-    {
-        QString name = port.portName();
-        if (!port.description().isEmpty())
-            name.append(QString(" [%1]").arg(port.description()));
-
-        port_selection_combobox->addItem(name, port.systemLocation());
-    }
-    make_combobox_data_current(*port_selection_combobox, settings.port_name);
 
     auto baudrate_combobox = new QComboBox;
     for (auto& baudrate: QSerialPortInfo::standardBaudRates())
@@ -75,7 +122,6 @@ QDialog* data_source_serial_port_delegate_t::settings_dialog(QWidget* parent)
     make_combobox_data_current(*stop_bits_combobox, settings.stop_bits);
 
     auto form_layout = new QFormLayout;
-    form_layout->addRow(tr("Port"), port_selection_combobox);
     form_layout->addRow(tr("Baudrate"), baudrate_combobox);
     form_layout->addRow(tr("Flow control"), flow_control_combobox);
     form_layout->addRow(tr("Data bits"), data_bits_combobox);
@@ -95,7 +141,6 @@ QDialog* data_source_serial_port_delegate_t::settings_dialog(QWidget* parent)
     connect(button_box, &QDialogButtonBox::accepted, dialog, [=]() {
         data_source_serial_port_t::settings_t settings;
 
-        settings.port_name = port_selection_combobox->currentData().toString();
         settings.baudrate = baudrate_combobox->currentData().value<QSerialPort::BaudRate>();
         settings.flow_control =
             flow_control_combobox->currentData().value<QSerialPort::FlowControl>();
@@ -103,7 +148,10 @@ QDialog* data_source_serial_port_delegate_t::settings_dialog(QWidget* parent)
         settings.parity = parity_combobox->currentData().value<QSerialPort::Parity>();
         settings.stop_bits = stop_bits_combobox->currentData().value<QSerialPort::StopBits>();
 
+        bool was_open = _data_source_serial_port.is_open();
         _data_source_serial_port.set_settings(std::move(settings));
+        if (was_open)
+            _data_source_serial_port.open();
 
         dialog->accept();
     });

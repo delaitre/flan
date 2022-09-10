@@ -1,5 +1,6 @@
 
 #include <flan/data_source_serial_port.hpp>
+#include <QtSerialPort/QSerialPortInfo>
 
 namespace flan
 {
@@ -40,8 +41,9 @@ QString stop_bits_to_short_string(QSerialPort::StopBits stop_bits)
 }
 } // namespace
 
-data_source_serial_port_t::data_source_serial_port_t(QObject* parent)
+data_source_serial_port_t::data_source_serial_port_t(QSerialPortInfo info, QObject* parent)
     : data_source_t{parent}
+    , _port{info}
 {
     connect(&_port, &QSerialPort::errorOccurred, this, [this](auto error) {
         switch (error)
@@ -49,8 +51,7 @@ data_source_serial_port_t::data_source_serial_port_t(QObject* parent)
         case QSerialPort::NoError:
             break;
         default:
-            if (_port.isOpen())
-                _port.close();
+            close();
             break;
         }
 
@@ -60,41 +61,71 @@ data_source_serial_port_t::data_source_serial_port_t(QObject* parent)
     connect(&_port, &QSerialPort::readyRead, this, [this]() {
         emit new_text(QString::fromUtf8(_port.readAll()));
     });
+
+    set_settings(_settings);
+}
+
+void data_source_serial_port_t::open()
+{
+    if (!_port.isOpen())
+    {
+        _port.open(QIODevice::ReadOnly);
+        emit info_changed(info());
+        emit is_open_changed(is_open());
+    }
+}
+
+void data_source_serial_port_t::close()
+{
+    if (_port.isOpen())
+    {
+        _port.close();
+        emit info_changed(info());
+        emit is_open_changed(is_open());
+    }
+}
+
+bool data_source_serial_port_t::is_open() const
+{
+    return _port.isOpen();
 }
 
 void data_source_serial_port_t::set_settings(settings_t settings)
 {
-    // Always re-apply the settings even if they did not change.
-    // This allows to re-open the same port with the same settings after an error occured.
-
     _settings = settings;
 
-    if (_port.isOpen())
-        _port.close();
+    close();
 
-    _port.setPortName(_settings.port_name);
     _port.setBaudRate(_settings.baudrate);
     _port.setFlowControl(_settings.flow_control);
     _port.setDataBits(_settings.data_bits);
     _port.setParity(_settings.parity);
     _port.setStopBits(_settings.stop_bits);
 
-    _port.open(QIODevice::ReadOnly);
-
     emit info_changed(info());
+}
+
+QString data_source_serial_port_t::port_name() const
+{
+    return _port.portName();
+}
+
+QString data_source_serial_port_t::name() const
+{
+    QString name = _port.portName();
+    if (auto desc = QSerialPortInfo{_port}.description(); !desc.isEmpty())
+        name.append(QString(" [%1]").arg(desc));
+
+    return name;
 }
 
 QString data_source_serial_port_t::info() const
 {
-    if (!_port.isOpen())
-        return tr("<not open>");
-
-    return QString("%1, %2 @ %3-%4-%5")
-        .arg(_port.portName())
-        .arg(_port.baudRate())
-        .arg(_port.dataBits())
-        .arg(parity_to_short_string(_port.parity()))
-        .arg(stop_bits_to_short_string(_port.stopBits()));
+    return QString("%1 @ %2-%3-%4")
+        .arg(_settings.baudrate)
+        .arg(_settings.data_bits)
+        .arg(parity_to_short_string(_settings.parity))
+        .arg(stop_bits_to_short_string(_settings.stop_bits));
 }
 
 QString data_source_serial_port_t::error_message() const
