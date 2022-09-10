@@ -13,7 +13,6 @@ class data_source_serial_port_t : public data_source_t
 public:
     struct settings_t
     {
-        QString port_name;
         qint32 baudrate = 2000000;
         QSerialPort::FlowControl flow_control = QSerialPort::NoFlowControl;
         QSerialPort::DataBits data_bits = QSerialPort::Data8;
@@ -22,22 +21,32 @@ public:
 
         bool operator==(const settings_t& other) const
         {
-            return (port_name == other.port_name) && (baudrate == other.baudrate)
-                && (flow_control == other.flow_control) && (data_bits == other.data_bits)
-                && (parity == other.parity) && (stop_bits == other.stop_bits);
+            return (baudrate == other.baudrate) && (flow_control == other.flow_control)
+                && (data_bits == other.data_bits) && (parity == other.parity)
+                && (stop_bits == other.stop_bits);
         }
         bool operator!=(const settings_t& other) const { return !(*this == other); }
     };
 
 public:
-    explicit data_source_serial_port_t(QObject* parent = nullptr);
+    explicit data_source_serial_port_t(QSerialPortInfo info, QObject* parent = nullptr);
+
+    void open();
+    void close();
+    bool is_open() const;
 
     const settings_t& settings() const { return _settings; }
     void set_settings(settings_t settings);
 
+    QString port_name() const;
+    QString name() const override;
     QString text() const override { return {}; }
-    QString info() const override;
+    QString info() const;
     QString error_message() const override;
+
+signals:
+    void info_changed(QString info);
+    void is_open_changed(bool is_open);
 
 private:
     settings_t _settings;

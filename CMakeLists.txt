@@ -17,24 +17,44 @@ if(NOT TARGET Qt::Core)
 endif()
 
 set(SOURCES
+    # data source
     include/flan/data_source.hpp
-    src/data_source.cpp
-    include/flan/data_source_scratch_buffer.hpp
-    src/data_source_scratch_buffer.cpp
-    include/flan/data_source_serial_port.hpp
-    src/data_source_serial_port.cpp
-    include/flan/data_source_stdin.hpp
-    src/data_source_stdin.cpp
+    src/data_source.cpp    
     include/flan/data_source_delegate.hpp
     src/data_source_delegate.cpp
-    include/flan/data_source_scratch_buffer_delegate.hpp
-    src/data_source_scratch_buffer_delegate.cpp
-    include/flan/data_source_serial_port_delegate.hpp
-    src/data_source_serial_port_delegate.cpp
-    include/flan/data_source_stdin_delegate.hpp
-    src/data_source_stdin_delegate.cpp
+    include/flan/data_source_delegate_provider.hpp
+    src/data_source_delegate_provider.cpp
     include/flan/data_source_selection_widget.hpp
     src/data_source_selection_widget.cpp
+
+    # scratch buffer
+    include/flan/data_source_scratch_buffer.hpp
+    src/data_source_scratch_buffer.cpp
+    include/flan/data_source_delegate_scratch_buffer.hpp
+    src/data_source_delegate_scratch_buffer.cpp
+    include/flan/data_source_delegate_provider_scratch_buffer.hpp
+    src/data_source_delegate_provider_scratch_buffer.cpp
+
+    # stdin
+    include/flan/data_source_stdin.hpp
+    src/data_source_stdin.cpp
+    include/flan/data_source_delegate_stdin.hpp
+    src/data_source_delegate_stdin.cpp
+    include/flan/data_source_delegate_provider_stdin.hpp
+    src/data_source_delegate_provider_stdin.cpp
+    src/stdin_socket_notifier.hpp
+    src/stdin_socket_notifier.cpp
+
+    # serial port
+    include/flan/data_source_serial_port.hpp
+    src/data_source_serial_port.cpp
+    include/flan/data_source_delegate_serial_port.hpp
+    src/data_source_delegate_serial_port.cpp
+    include/flan/data_source_delegate_provider_serial_port.hpp
+    src/data_source_delegate_provider_serial_port.cpp
+    include/flan/data_source_provider_serial_port.hpp
+    src/data_source_provider_serial_port.cpp
+
     include/flan/elided_label.hpp
     src/elided_label.cpp
     include/flan/find_controller.hpp
@@ -77,8 +97,6 @@ set(SOURCES
     src/style_list_widget.cpp
     include/flan/pcre_cheatsheet_dialog.hpp
     src/pcre_cheatsheet_dialog.cpp
-    src/stdin_socket_notifier.hpp
-    src/stdin_socket_notifier.cpp
     include/flan/timestamp_format.hpp
     src/timestamp_format.cpp
     include/flan/timestamp_format_settings_dialog.hpp

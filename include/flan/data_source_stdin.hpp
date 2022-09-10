@@ -14,8 +14,8 @@ class data_source_stdin_t : public data_source_t
 public:
     explicit data_source_stdin_t(QObject* parent = nullptr);
 
+    QString name() const override { return tr("Standard input (stdin)"); }
     QString text() const override { return {}; }
-    QString info() const override { return {}; }
     QString error_message() const override { return {}; }
 
 private:

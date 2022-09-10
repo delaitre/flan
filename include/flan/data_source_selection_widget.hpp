@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QComboBox>
+#include <QHBoxLayout>
 #include <QToolButton>
 #include <QWidget>
 
@@ -30,13 +31,12 @@ private:
     data_source_delegate_t* current_delegate() const;
 
 private slots:
-    void update_info_and_settings();
-    void show_configuration_dialog();
+    void rebuild_custom_widgets();
+    void update_error();
 
 private:
     QComboBox* _data_source_combobox = nullptr;
-    QToolButton* _configuration_button = nullptr;
-    elided_label_t* _info_label = nullptr;
+    QHBoxLayout* _current_source_widget_layout = nullptr;
     elided_label_t* _error_label = nullptr;
 
     data_source_delegate_list_t _delegates;
