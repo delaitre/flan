@@ -1,5 +1,10 @@
 # flan
 
+![License](https://img.shields.io/github/license/delaitre/flan)
+![Release](https://img.shields.io/github/v/release/delaitre/flan?sort=semver)
+![Build](https://img.shields.io/github/workflow/status/delaitre/flan/CMake?logo=GitHub&label=build)
+![Formatting](https://img.shields.io/github/workflow/status/delaitre/flan/clang-format?logo=GitHub&label=format)
+
 *flan* stands for flexible log analyser, and also is a yummy treat (which you probably need if you use a tool like this).
 
 This is a simple line based textual log analyser allowing you to define a bunch of pattern/regexp and give then a name. Then you can select on the fly which ones to apply on your input and decide if the pattern should be filtering matching lines out, or keeping them in, or if you just want to highlight the matches.
