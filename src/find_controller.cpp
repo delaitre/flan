@@ -59,7 +59,6 @@ bool find_controller_t::use_regexp() const
 
 void find_controller_t::find(bool search_backward)
 {
-    _text_edit->viewport()->setFocus();
     auto original_cursor = _text_edit->textCursor();
     bool found = false;
 

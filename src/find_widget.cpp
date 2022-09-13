@@ -31,6 +31,8 @@ find_widget_t::find_widget_t(find_controller_t* controller, QWidget* parent)
     layout->addWidget(_next_button);
     setLayout(layout);
 
+    setFocusProxy(_pattern_lineedit);
+
     connect(
         _pattern_lineedit, &QLineEdit::textEdited, _controller, &find_controller_t::set_pattern);
     connect(
