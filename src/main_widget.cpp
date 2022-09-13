@@ -113,6 +113,7 @@ main_widget_t::main_widget_t(QWidget* parent)
 
     connect(_find_controller->find_action(), &QAction::triggered, this, [this]() {
         _find->setVisible(true);
+        _find->setFocus(Qt::OtherFocusReason);
     });
 
     auto escape_action = new QAction{this};

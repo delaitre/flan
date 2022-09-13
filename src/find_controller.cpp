@@ -42,8 +42,26 @@ void find_controller_t::set_pattern(QString pattern)
 {
     if (_pattern != pattern)
     {
+        // Check if by any change the new pattern is just the old one with new data prepended to it.
+        // In this case, we would do a backward search as it makes for a better incremental search
+        // experience.
+        bool new_pattern_ends_with_old_pattern = pattern.endsWith(_pattern);
         _pattern = pattern;
         emit pattern_changed(_pattern);
+
+        // Move the cursor at the beginning of the current selection if any. This allows to update
+        // the current selection if the pattern is extended but is still matching the current match
+        // (e.g. do incremental search as the user type the pattern to search for).
+        //
+        // This can't be done in the find() function as otherwise search for the next match using
+        // the same pattern (e.g. when click a "next" button) would always lead in the same match
+        // being selected.
+        auto start_of_search_cursor = _text_edit->textCursor();
+        start_of_search_cursor.setPosition(
+            start_of_search_cursor.selectionStart(), QTextCursor::MoveAnchor);
+        _text_edit->setTextCursor(start_of_search_cursor);
+
+        find(new_pattern_ends_with_old_pattern ? true : false);
     }
 }
 
@@ -59,8 +77,7 @@ bool find_controller_t::use_regexp() const
 
 void find_controller_t::find(bool search_backward)
 {
-    _text_edit->viewport()->setFocus();
-    auto original_cursor = _text_edit->textCursor();
+    const auto original_cursor = _text_edit->textCursor();
     bool found = false;
 
     QTextDocument::FindFlags flags{};

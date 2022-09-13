@@ -31,6 +31,8 @@ find_widget_t::find_widget_t(find_controller_t* controller, QWidget* parent)
     layout->addWidget(_next_button);
     setLayout(layout);
 
+    setFocusProxy(_pattern_lineedit);
+
     connect(
         _pattern_lineedit, &QLineEdit::textEdited, _controller, &find_controller_t::set_pattern);
     connect(
@@ -54,7 +56,10 @@ find_widget_t::find_widget_t(find_controller_t* controller, QWidget* parent)
     connect(_next_button, &QPushButton::clicked, _controller->next_action(), &QAction::trigger);
 
     connect(_controller, &find_controller_t::pattern_changed, this, [this](QString pattern) {
-        _pattern_lineedit->setText(pattern);
+        // Check if the pattern actually changed to avoid having the lineedit reset the cursor
+        // position even if the text is unchanged.
+        if (pattern != _pattern_lineedit->text())
+            _pattern_lineedit->setText(pattern);
     });
 }
 } // namespace flan
