@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/github/license/delaitre/flan)
 ![Release](https://img.shields.io/github/v/release/delaitre/flan?sort=semver)
-![Build](https://img.shields.io/github/workflow/status/delaitre/flan/CMake?logo=GitHub&label=build)
+![Build](https://img.shields.io/github/workflow/status/delaitre/flan/build?logo=GitHub&label=build)
 ![Formatting](https://img.shields.io/github/workflow/status/delaitre/flan/clang-format?logo=GitHub&label=format)
 
 *flan* stands for flexible log analyser, and also is a yummy treat (which you probably need if you use a tool like this).
