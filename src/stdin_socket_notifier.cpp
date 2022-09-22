@@ -2,6 +2,10 @@
 #include "stdin_socket_notifier.hpp"
 #include <iostream>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 namespace flan
 {
 stdin_socket_notifier_t::stdin_socket_notifier_t(QObject* parent)
