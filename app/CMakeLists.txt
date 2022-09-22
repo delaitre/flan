@@ -6,4 +6,8 @@ set(SOURCES
 
 add_executable(flan_app ${SOURCES})
 target_link_libraries(flan_app PRIVATE flan)
-set_target_properties(flan_app PROPERTIES OUTPUT_NAME flan)
+set_target_properties(flan_app PROPERTIES
+    OUTPUT_NAME flan
+    WIN32_EXECUTABLE ON
+    MACOSX_BUNDLE ON
+)
