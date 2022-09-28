@@ -44,6 +44,12 @@ public slots:
     //! Pause appending text to the log is \a is_paused is \c true otherwise restart appending text.
     void set_paused(bool is_paused);
 
+    //! Show or hide log lines by default according to \a show_lines_by_default.
+    //!
+    //! This is the state of a line when no rules matches or the rule is not selected for keeping
+    //! or removal.
+    void set_show_lines_by_default(bool show_lines_by_default);
+
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     QMimeData* createMimeDataFromSelection() const override;
@@ -59,5 +65,6 @@ private:
     rule_highlighter_t* _highlighter = nullptr;
     styled_matching_rule_list_t _rules;
     bool _is_paused = false;
+    bool _show_lines_by_default = true;
 };
 } // namespace flan

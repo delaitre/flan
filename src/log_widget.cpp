@@ -65,6 +65,15 @@ void log_widget_t::set_paused(bool is_paused)
     _is_paused = is_paused;
 }
 
+void log_widget_t::set_show_lines_by_default(bool show_lines_by_default)
+{
+    if (_show_lines_by_default != show_lines_by_default)
+    {
+        _show_lines_by_default = show_lines_by_default;
+        apply_rules();
+    }
+}
+
 void log_widget_t::mouseMoveEvent(QMouseEvent* event)
 {
     // If buttons are pressed, use the base class implementation.
@@ -147,6 +156,9 @@ void log_widget_t::apply_rules()
 
     for (auto block = doc->begin(); block.isValid(); block = block.next())
     {
+        // Apply block default visibility.
+        block.setVisible(_show_lines_by_default);
+
         // Iterate over the rules in order and determine if the block should be visible or not.
         for (auto& styled_rule: _rules)
         {
@@ -183,15 +195,11 @@ void log_widget_t::apply_rules()
                 // A matching rule was found, so don't check remaining rules.
                 break;
             }
-            else
-            {
-                // No rule matched, so ensure the block is visible (which might not be the case if
-                // it was removed by a rule which is now not applying because unchecked or the block
-                // content changed.
-                block.setVisible(true);
-            }
         }
     }
+
+    ensureCursorVisible();
+    viewport()->update();
 }
 
 QString log_widget_t::plain_text_with_rules_applied() const
