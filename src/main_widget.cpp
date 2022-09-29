@@ -73,6 +73,16 @@ main_widget_t::main_widget_t(QWidget* parent)
     auto left_widget = new QWidget;
     left_widget->setLayout(left_layout);
 
+    auto default_visibility_checkbox = new QCheckBox{tr("Default show")};
+    default_visibility_checkbox->setToolTip(tr("Show/hide log lines by default"));
+    default_visibility_checkbox->setChecked(true);
+    connect(
+        default_visibility_checkbox,
+        &QCheckBox::toggled,
+        _log,
+        &log_widget_t::set_show_lines_by_default);
+    _log->set_show_lines_by_default(default_visibility_checkbox->isChecked());
+
     auto pause_button = new QPushButton{tr("Pause")};
     pause_button->setCheckable(true);
     connect(pause_button, &QPushButton::toggled, _log, &log_widget_t::set_paused);
@@ -83,6 +93,7 @@ main_widget_t::main_widget_t(QWidget* parent)
     auto bottom_layout = new QHBoxLayout;
     bottom_layout->setContentsMargins(0, 0, 0, 0);
     bottom_layout->addWidget(_data_source, 1);
+    bottom_layout->addWidget(default_visibility_checkbox);
     bottom_layout->addWidget(pause_button);
     bottom_layout->addWidget(clear_button);
 
