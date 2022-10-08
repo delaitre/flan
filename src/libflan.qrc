@@ -2,12 +2,20 @@
     <qresource prefix="/">
         <file alias="pcre_cheatsheet">assets/pcre_cheatsheet.html</file>
     </qresource>
-    <qresource prefix="/icons">
-        <file alias="group">assets/group_icon.svg</file>
-        <file alias="regex">assets/regex_icon.svg</file>
-        <file alias="plus">assets/plus_icon.svg</file>
-        <file alias="minus">assets/minus_icon.svg</file>
-        <file alias="checked">assets/checked_icon.svg</file>
-        <file alias="unchecked">assets/unchecked_icon.svg</file>
+    <qresource prefix="/icons/light">
+        <file alias="group">assets/light/group_icon.svg</file>
+        <file alias="regex">assets/light/regex_icon.svg</file>
+        <file alias="plus">assets/light/plus_icon.svg</file>
+        <file alias="minus">assets/light/minus_icon.svg</file>
+        <file alias="checked">assets/light/checked_icon.svg</file>
+        <file alias="unchecked">assets/light/unchecked_icon.svg</file>
+    </qresource>
+    <qresource prefix="/icons/dark">
+        <file alias="group">assets/dark/group_icon.svg</file>
+        <file alias="regex">assets/dark/regex_icon.svg</file>
+        <file alias="plus">assets/dark/plus_icon.svg</file>
+        <file alias="minus">assets/dark/minus_icon.svg</file>
+        <file alias="checked">assets/dark/checked_icon.svg</file>
+        <file alias="unchecked">assets/dark/unchecked_icon.svg</file>
     </qresource>
 </RCC>

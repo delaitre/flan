@@ -82,12 +82,12 @@ timestamp_format_settings_dialog_t::timestamp_format_settings_dialog_t(
 
     _add_format_button = new QToolButton;
     _add_format_button->setAutoRaise(true);
-    _add_format_action = new QAction{QIcon{":/icons/plus"}, tr("Add format"), _add_format_button};
+    _add_format_action = new QAction{QIcon{":/icons/light/plus"}, tr("Add format"), _add_format_button};
     _add_format_button->setDefaultAction(_add_format_action);
     _remove_format_button = new QToolButton;
     _remove_format_button->setAutoRaise(true);
     _remove_format_action =
-        new QAction{QIcon{":/icons/minus"}, tr("Remove format"), _remove_format_button};
+        new QAction{QIcon{":/icons/light/minus"}, tr("Remove format"), _remove_format_button};
     _remove_format_button->setDefaultAction(_remove_format_action);
     auto add_remove_layout = new QVBoxLayout;
     add_remove_layout->addWidget(_add_format_button);

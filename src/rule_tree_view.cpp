@@ -26,10 +26,10 @@ void tree_view_t::contextMenuEvent(QContextMenuEvent* event)
     {
         QMenu menu{this};
 
-        auto rule_menu = menu.addMenu(QIcon{":/icons/regex"}, tr("Rule"));
+        auto rule_menu = menu.addMenu(QIcon{":/icons/light/regex"}, tr("Rule"));
         auto action_add_rule = rule_menu->addAction(tr("Add"));
 
-        auto group_menu = menu.addMenu(QIcon{":/icons/group"}, tr("Group"));
+        auto group_menu = menu.addMenu(QIcon{":/icons/light/group"}, tr("Group"));
         auto action_add_group = group_menu->addAction(tr("Add"));
 
         auto model = static_cast<rule_model_t*>(this->model());
@@ -52,12 +52,12 @@ void tree_view_t::contextMenuEvent(QContextMenuEvent* event)
 
         QMenu menu{this};
 
-        auto rule_menu = menu.addMenu(QIcon{":/icons/regex"}, tr("Rule"));
+        auto rule_menu = menu.addMenu(QIcon{":/icons/light/regex"}, tr("Rule"));
         auto action_add_rule_before = rule_menu->addAction(tr("Insert before"));
         auto action_add_rule_after = rule_menu->addAction(tr("Insert after"));
         auto action_add_rule_child = rule_menu->addAction(tr("Insert child"));
 
-        auto group_menu = menu.addMenu(QIcon{":/icons/group"}, tr("Group"));
+        auto group_menu = menu.addMenu(QIcon{":/icons/light/group"}, tr("Group"));
         auto action_add_group_before = group_menu->addAction(tr("Insert before"));
         auto action_add_group_after = group_menu->addAction(tr("Insert after"));
         auto action_add_group_child = group_menu->addAction(tr("Insert child"));
@@ -101,8 +101,8 @@ void tree_view_t::contextMenuEvent(QContextMenuEvent* event)
     {
         QMenu menu{this};
 
-        auto check_menu = menu.addMenu(QIcon{":/icons/checked"}, tr("Check"));
-        auto uncheck_menu = menu.addMenu(QIcon{":/icons/unchecked"}, tr("Uncheck"));
+        auto check_menu = menu.addMenu(QIcon{":/icons/light/checked"}, tr("Check"));
+        auto uncheck_menu = menu.addMenu(QIcon{":/icons/light/unchecked"}, tr("Uncheck"));
         auto action_check_remove_matches = check_menu->addAction(tr("Hide matches"));
         auto action_uncheck_remove_matches = uncheck_menu->addAction(tr("Hide matches"));
         auto action_check_keep_matches = check_menu->addAction(tr("Keep matches"));

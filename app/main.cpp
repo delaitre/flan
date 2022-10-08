@@ -12,6 +12,42 @@
 #include <QMainWindow>
 #include <QSettings>
 
+#include <QProxyStyle>
+#include <QPainter>
+
+class flan_style_t : public QProxyStyle
+{
+public:
+    QPixmap generatedIconPixmap(
+        QIcon::Mode iconMode,
+        const QPixmap& pixmap,
+        const QStyleOption* opt) const override
+    {
+        switch (iconMode)
+        {
+        //case QIcon::Active:
+        //    [[fallthrough]];
+        //case QIcon::Normal:
+        //    [[fallthrough]];
+        //case QIcon::Selected:
+        //    return pixmap;
+        //case QIcon::Disabled:
+        default:
+        {
+            QPixmap generated = pixmap;
+
+            QPainter p(&generated);
+            //p.fillRect(generated.rect(), QColor(48, 47, 47, 128));
+            p.fillRect(generated.rect(), QColor(255, 0, 0, 128));
+
+            return generated;
+        }
+        }
+
+        return pixmap;
+    }
+};
+
 using namespace flan;
 
 namespace
@@ -116,6 +152,7 @@ QString get_initial_text_log()
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
+    //app.setStyle(new flan_style_t);
 
     rule_model_t rule_model;
     auto rule_root = get_initial_rules();

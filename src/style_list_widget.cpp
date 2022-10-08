@@ -25,7 +25,7 @@ style_list_widget_t::style_list_widget_t(QWidget* parent)
 
     _add_button = new QToolButton{this};
     _add_button->setAutoRaise(true);
-    auto add_action = new QAction{QIcon{":/icons/plus"}, tr("Add style"), _add_button};
+    auto add_action = new QAction{QIcon{":/icons/light/plus"}, tr("Add style"), _add_button};
     _add_button->setDefaultAction(add_action);
     connect(add_action, &QAction::triggered, this, [this]() {
         if (auto style = show_style_editor({}))
@@ -38,7 +38,7 @@ style_list_widget_t::style_list_widget_t(QWidget* parent)
 
     _remove_button = new QToolButton{this};
     _remove_button->setAutoRaise(true);
-    auto remove_action = new QAction{QIcon{":/icons/minus"}, tr("Remove style"), _remove_button};
+    auto remove_action = new QAction{QIcon{":/icons/light/minus"}, tr("Remove style"), _remove_button};
     _remove_button->setDefaultAction(remove_action);
     connect(remove_action, &QAction::triggered, this, [this]() {
         if (!_styles.empty())
