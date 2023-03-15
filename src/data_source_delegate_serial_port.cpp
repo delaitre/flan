@@ -20,6 +20,24 @@ void make_combobox_data_current(QComboBox& combobox, QVariant data)
 {
     combobox.setCurrentIndex(std::max(0, combobox.findData(data)));
 }
+
+std::vector<int> get_baudrate_list()
+{
+    // Create a list of baudrates from the list of standard ones, plus other hardcoded ones that are
+    // useful.
+    std::vector<int> baudrate_list = {1000000, 2000000, 4000000, 8000000};
+    for (auto& baudrate: QSerialPortInfo::standardBaudRates())
+    {
+        baudrate_list.push_back(baudrate);
+    }
+
+    // Sort and remove duplicates
+    std::sort(baudrate_list.begin(), baudrate_list.end());
+    baudrate_list.erase(
+        std::unique(baudrate_list.begin(), baudrate_list.end()), baudrate_list.end());
+
+    return baudrate_list;
+}
 } // namespace
 
 data_source_delegate_serial_port_t::data_source_delegate_serial_port_t(
@@ -88,7 +106,7 @@ QDialog* data_source_delegate_serial_port_t::settings_dialog(QWidget* parent) co
     auto& settings = _data_source_serial_port.settings();
 
     auto baudrate_combobox = new QComboBox;
-    for (auto& baudrate: QSerialPortInfo::standardBaudRates())
+    for (auto baudrate: get_baudrate_list())
     {
         baudrate_combobox->addItem(QString::number(baudrate), baudrate);
     }
