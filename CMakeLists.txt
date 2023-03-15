@@ -9,12 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Check if a versionless version of Qt is already defined. If so, use it, otherwise search for Qt6.
-# This allows projects using flan to search for their own Qt version first and flan will happily use
-# the same.
-if(NOT TARGET Qt::Core)
-    find_package(Qt6 REQUIRED COMPONENTS Widgets SerialPort)
-endif()
+find_package(Qt6 REQUIRED COMPONENTS Widgets SerialPort)
 
 set(SOURCES
     # data source
@@ -108,17 +103,15 @@ set(SOURCES
 add_library(flan SHARED ${SOURCES})
 target_include_directories(flan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(flan PUBLIC Qt::Widgets PRIVATE Qt::SerialPort)
+target_link_libraries(flan PUBLIC Qt6::Widgets PRIVATE Qt6::SerialPort)
 
 option(FLAN_TEST_RULE_MODEL "Test the rule model as it is being exercised" FALSE)
 
 if(FLAN_TEST_RULE_MODEL)
-    if(NOT TARGET Qt::Test)
-        find_package(Qt6 REQUIRED COMPONENTS Test)
-    endif()
+    find_package(Qt6 REQUIRED COMPONENTS Test)
 
     target_compile_definitions(flan PRIVATE FLAN_TEST_RULE_MODEL)
-    target_link_libraries(flan PRIVATE Qt::Test)
+    target_link_libraries(flan PRIVATE Qt6::Test)
 endif()
 
 option(FLAN_BUILD_APP "Build the flan application" TRUE)
