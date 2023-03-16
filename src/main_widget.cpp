@@ -5,6 +5,7 @@
 #include <flan/log_margin_area_widget.hpp>
 #include <flan/log_widget.hpp>
 #include <flan/main_widget.hpp>
+#include <flan/plot.hpp>
 #include <flan/rule_model.hpp>
 #include <flan/rule_set.hpp>
 #include <flan/rule_tree_widget.hpp>
@@ -54,6 +55,7 @@ main_widget_t::main_widget_t(QWidget* parent)
     , _log_margin{new log_margin_area_widget_t{_log}}
     , _find_controller{new find_controller_t{_log, this}}
     , _find{new find_widget_t{_find_controller}}
+    , _plot{new plot_t}
 {
     connect(
         _data_source,
@@ -113,6 +115,7 @@ main_widget_t::main_widget_t(QWidget* parent)
     splitter->setStretchFactor(0, 0);
     splitter->addWidget(right_widget);
     splitter->setStretchFactor(1, 1);
+    splitter->addWidget(_plot);
 
     auto main_layout = new QVBoxLayout;
     main_layout->addWidget(splitter);
@@ -147,6 +150,11 @@ const timestamp_format_list_t& main_widget_t::timestamp_formats() const
 void main_widget_t::set_timestamp_formats(timestamp_format_list_t formats)
 {
     _log_margin->set_timestamp_formats(std::move(formats));
+}
+
+void main_widget_t::set_plot_pattern(QString pattern)
+{
+    _plot->set_pattern(pattern);
 }
 
 void main_widget_t::set_content(const QString& text)
@@ -190,9 +198,11 @@ void main_widget_t::on_current_data_source_changed(data_source_t* data_source)
     {
         connect(_current_data_source, &data_source_t::new_text, _log, [this](auto text) {
             _log->append_text(text);
+            _plot->add_data(text);
         });
         _log->clear();
         _log->append_text(_current_data_source->text());
+        _plot->clear();
     }
 }
 } // namespace flan

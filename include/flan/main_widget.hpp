@@ -17,6 +17,7 @@ class log_margin_area_widget_t;
 class find_widget_t;
 class data_source_t;
 class find_controller_t;
+class plot_t;
 
 class main_widget_t : public QWidget
 {
@@ -29,6 +30,11 @@ public:
 
     const timestamp_format_list_t& timestamp_formats() const;
     void set_timestamp_formats(timestamp_format_list_t formats);
+
+    //! Change the \a pattern used to extract data into curves for the plot.
+    //!
+    //! \sa plot_t::set_pattern for more info.
+    void set_plot_pattern(QString pattern);
 
 public slots:
     void set_content(const QString& text);
@@ -45,5 +51,6 @@ private:
     log_margin_area_widget_t* _log_margin = nullptr;
     find_controller_t* _find_controller = nullptr;
     find_widget_t* _find = nullptr;
+    plot_t* _plot = nullptr;
 };
 } // namespace flan
