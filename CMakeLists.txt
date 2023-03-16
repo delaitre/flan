@@ -11,6 +11,8 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets SerialPort)
 
+add_subdirectory(libs)
+
 set(SOURCES
     # data source
     include/flan/data_source.hpp
@@ -104,6 +106,7 @@ add_library(flan SHARED ${SOURCES})
 target_include_directories(flan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(flan PUBLIC Qt6::Widgets PRIVATE Qt6::SerialPort)
+target_link_libraries(flan PRIVATE qwt)
 
 option(FLAN_TEST_RULE_MODEL "Test the rule model as it is being exercised" FALSE)
 
