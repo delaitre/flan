@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QSettings>
+#include <QStyleFactory>
 
 using namespace flan;
 
@@ -116,6 +117,13 @@ QString get_initial_text_log()
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
+
+    // app.setStyle("Fusion");
+    // app.setPalette(QStyleFactory::create("Fusion")->standardPalette());
+    // app.setStyle("Adwaita-Dark");
+    // app.setPalette(QStyleFactory::create("Adwaita-Dark")->standardPalette());
+    app.setStyle("Adwaita");
+    app.setPalette(QStyleFactory::create("Adwaita")->standardPalette());
 
     rule_model_t rule_model;
     auto rule_root = get_initial_rules();
