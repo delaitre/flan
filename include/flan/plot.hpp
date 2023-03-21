@@ -8,6 +8,8 @@
 
 class QwtPlot;
 class QwtPlotCurve;
+class QDoubleSpinBox;
+class QCheckBox;
 
 namespace flan
 {
@@ -39,9 +41,15 @@ public slots:
 private:
     void assign_curve_to_axis(QwtPlotCurve* curve, QwtAxisId axis);
 
+private slots:
+    void rescale();
+
 private:
     QwtPlot* _plot = nullptr;
-    validated_lineedit_t* _pattern_lineedit;
+    validated_lineedit_t* _pattern_lineedit = nullptr;
+    QCheckBox* _window_checkbox = nullptr;
+    QDoubleSpinBox* _window_spinbox = nullptr;
+
     QRegularExpression _pattern;
     QVector<int> _captured_indices;
     QVector<plot_series_data_t*> _curves_data;

@@ -2,6 +2,8 @@
 #include <flan/plot.hpp>
 #include <flan/valid_regular_expression_validator.hpp>
 #include <flan/validated_lineedit.hpp>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
 #include <QLabel>
 #include <QPalette>
 #include <QPen>
@@ -75,6 +77,8 @@ plot_t::plot_t(QWidget* parent)
     : QWidget{parent}
     , _plot{new QwtPlot}
     , _pattern_lineedit{new validated_lineedit_t}
+    , _window_checkbox{new QCheckBox{tr("Fixed window")}}
+    , _window_spinbox{new QDoubleSpinBox}
 {
     // Pattern
     _pattern_lineedit->setValidator(new valid_regular_expression_validator_t{_pattern_lineedit});
@@ -85,10 +89,22 @@ plot_t::plot_t(QWidget* parent)
         "to the \"Time\" curve"));
     connect(_pattern_lineedit, &QLineEdit::textChanged, this, &plot_t::set_pattern);
 
+    // Window size
+    _window_checkbox->setChecked(true);
+    _window_spinbox->setRange(0, 100000);
+    _window_spinbox->setValue(100);
+    _window_spinbox->setSuffix(tr(" units"));
+    _window_spinbox->setEnabled(_window_checkbox->isChecked());
+    connect(_window_checkbox, &QCheckBox::toggled, _window_spinbox, &QDoubleSpinBox::setEnabled);
+    connect(_window_checkbox, &QCheckBox::toggled, this, &plot_t::rescale);
+    connect(_window_spinbox, &QDoubleSpinBox::valueChanged, this, &plot_t::rescale);
+
     // Create pattern layout
-    auto pattern_layout = new QHBoxLayout;
-    pattern_layout->addWidget(new QLabel{tr("Data pattern")});
-    pattern_layout->addWidget(_pattern_lineedit);
+    auto bottom_layout = new QHBoxLayout;
+    bottom_layout->addWidget(new QLabel{tr("Data pattern")});
+    bottom_layout->addWidget(_pattern_lineedit);
+    bottom_layout->addWidget(_window_checkbox);
+    bottom_layout->addWidget(_window_spinbox);
 
     // Plot
     QwtPlotCanvas* canvas = new QwtPlotCanvas();
@@ -107,7 +123,7 @@ plot_t::plot_t(QWidget* parent)
     auto main_layout = new QVBoxLayout;
     main_layout->setContentsMargins(8, 0, 0, 0);
     main_layout->addWidget(_plot);
-    main_layout->addLayout(pattern_layout);
+    main_layout->addLayout(bottom_layout);
     setLayout(main_layout);
 }
 
@@ -184,6 +200,7 @@ void plot_t::add_data(const QString& line)
         }
     }
 
+    rescale();
     _plot->replot();
 }
 
@@ -207,5 +224,24 @@ void plot_t::assign_curve_to_axis(QwtPlotCurve* curve, QwtAxisId axis)
 
     // Update axis title to match curve
     axis_widget->setTitle(curve->title());
+}
+
+void plot_t::rescale()
+{
+    auto x_axis = QwtAxisId{QwtAxis::XBottom, 0};
+
+    if (_window_checkbox->isChecked())
+    {
+        if (!_curves_data.isEmpty())
+        {
+            auto bounding_rect = _curves_data.first()->boundingRect();
+            _plot->setAxisScale(
+                x_axis, bounding_rect.right() - _window_spinbox->value(), bounding_rect.right());
+        }
+    }
+    else
+    {
+        _plot->setAxisAutoScale(x_axis, true);
+    }
 }
 } // namespace flan
