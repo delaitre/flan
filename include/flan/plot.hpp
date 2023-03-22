@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <QRegularExpression>
+#include <flan/curve_data_parser.hpp>
 #include <QVector>
 #include <QWidget>
 #include <qwt_axis_id.h>
@@ -28,7 +28,7 @@ public slots:
     //! Change the \a pattern_string used to extract data (\sa add_data) into curves.
     //!
     //! Each named captured group represents a curve with the same name, and the data captured
-    //! (which mush be a number) is added to this curve's data.
+    //! (which must be a number) is added to this curve's data.
     void set_pattern(QString pattern_string);
 
     //! Parse the \a line to extract new data for each curves according to the pattern set by
@@ -50,8 +50,7 @@ private:
     QCheckBox* _window_checkbox = nullptr;
     QDoubleSpinBox* _window_spinbox = nullptr;
 
-    QRegularExpression _pattern;
-    QVector<int> _captured_indices;
+    curve_data_parser_t _curve_parser;
     QVector<plot_series_data_t*> _curves_data;
 };
 } // namespace flan

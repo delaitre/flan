@@ -16,7 +16,7 @@ add_subdirectory(libs)
 set(SOURCES
     # data source
     include/flan/data_source.hpp
-    src/data_source.cpp    
+    src/data_source.cpp
     include/flan/data_source_delegate.hpp
     src/data_source_delegate.cpp
     include/flan/data_source_delegate_provider.hpp
@@ -102,6 +102,8 @@ set(SOURCES
     src/validated_lineedit.cpp
     include/flan/plot.hpp
     src/plot.cpp
+    include/flan/curve_data_parser.hpp
+    src/curve_data_parser.cpp
 )
 
 add_library(flan SHARED ${SOURCES})

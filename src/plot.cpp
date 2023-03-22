@@ -99,7 +99,7 @@ plot_t::plot_t(QWidget* parent)
     connect(_window_checkbox, &QCheckBox::toggled, this, &plot_t::rescale);
     connect(_window_spinbox, &QDoubleSpinBox::valueChanged, this, &plot_t::rescale);
 
-    // Create pattern layout
+    // Create bottom layout
     auto bottom_layout = new QHBoxLayout;
     bottom_layout->addWidget(new QLabel{tr("Data pattern")});
     bottom_layout->addWidget(_pattern_lineedit);
@@ -129,39 +129,29 @@ plot_t::plot_t(QWidget* parent)
 
 void plot_t::set_pattern(QString pattern_string)
 {
-    QRegularExpression pattern{pattern_string};
-    if (!pattern.isValid())
-        return;
-
+    _curve_parser.set_pattern(pattern_string);
     _pattern_lineedit->setText(pattern_string);
-    _pattern = pattern;
-    _pattern.optimize();
 
-    _captured_indices.clear();
     _curves_data.clear();
     _plot->detachItems(QwtPlotItem::Rtti_PlotItem, true);
 
-    // We will create one curve per named, non empty capture group
-    auto curve_names = _pattern.namedCaptureGroups();
-    for (int i = 0; i < curve_names.size(); ++i)
-    {
-        if (!curve_names[i].isEmpty())
-            _captured_indices.append(i);
-    }
+    // Get the name of the curves.
+    auto& curve_names = _curve_parser.curve_names();
+    auto curve_count = curve_names.size();
 
     // Ensure the plot has enough axes
     _plot->setAxesCount(QwtAxis::XBottom, 1);
     QwtAxisId x_axis_id(QwtAxis::XBottom, 0);
     _plot->setAxisAutoScale(x_axis_id, true);
-    _plot->setAxesCount(QwtAxis::YLeft, _captured_indices.size());
+    _plot->setAxesCount(QwtAxis::YLeft, curve_count);
 
     // Generate different colors for each curve
-    auto colors = get_colors(_captured_indices.size());
+    auto colors = get_colors(curve_count);
 
-    // Create one new axis and curve per capture group
-    for (auto i = 0; i < _captured_indices.size(); ++i)
+    // Create each curve with its own axis
+    for (auto i = 0; i < curve_count; ++i)
     {
-        auto name = curve_names[_captured_indices[i]];
+        auto name = curve_names[i];
 
         QwtPlotCurve* curve = new QwtPlotCurve();
         curve->setTitle(name);
@@ -184,20 +174,13 @@ void plot_t::set_pattern(QString pattern_string)
 
 void plot_t::add_data(const QString& line)
 {
-    QRegularExpressionMatch match = _pattern.match(line);
+    _curve_parser.set_data(line);
+    auto& curve_data = _curve_parser.curve_data();
 
-    for (int i = 0; i < _captured_indices.size(); ++i)
+    for (int i = 0; i < curve_data.size(); ++i)
     {
-        if (QString s = match.captured(_captured_indices[i]); !s.isNull())
-        {
-            bool ok = false;
-            double value = s.toDouble(&ok);
-            if (ok)
-            {
-                _curves_data[i]->append_sample(
-                    {static_cast<double>(_curves_data[i]->size()), value});
-            }
-        }
+        _curves_data[i]->append_sample(
+            {static_cast<double>(_curves_data[i]->size()), curve_data[i]});
     }
 
     rescale();
