@@ -11,7 +11,11 @@ This is a simple line based textual log analyser allowing you to define a bunch 
 
 Each pattern related to filtering is applied in order until one matches, so pattern order is important (e.g. if you really need a specific pattern to be kept, it needs to be applied (and marked for keeping) before another more generic pattern (and marked for removal) also matching the same line is applied). Highligthing is applied after filtering.
 
-Patterns are saved in a configuration file so that they are restored and ready for action next time you need to analyse a log.
+Patterns are saved in a configuration file so that they are restored and ready for action next time you need to analyse a log. It is also easy to automatically generate such a config file from a script if for example you have a list of message definitions you want to create rule for or similar.
+
+The tool also shows absolute or relative line numbers, and is able to extract timestamps (with custom format) in order to show absolute or relative timestamps in the margin instead of line numbers.
+
+![Preview of flan usage](./flan_preview.gif "Preview of flan usage")
 
 ## Why?
 
@@ -31,4 +35,3 @@ make
 ## License
 
 *flan* is licensed under [the MIT License](LICENSE).
-
