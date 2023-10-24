@@ -17,6 +17,13 @@ The tool also shows absolute or relative line numbers, and is able to extract ti
 
 ![Preview of flan usage](./flan_preview.gif "Preview of flan usage")
 
+## Data sources
+
+Currently *flan* supports the following sources as data input:
+- Scratch buffer (simple editable buffer)
+- Standard input (stdin), so that one can pipe output of a tool into *flan*
+- Serial port (UART/COM)
+
 ## Why?
 
 I spend a lot of time analysing line based textual log files but never really found a tool to help me for my use cases. I always fell back using vim but from one day to the other, I always needed to search for different complex patterns, sometimes I wanted to filter stuff out, sometimes to keep stuff in, sometimes to just highlight matches and so on. But I always tend to have a basic set of regexps I want to use, and then additional ones I wanted to enabled or not depending on what I was doing. Going through vim's history to select each pattern I wanted to apply got pretty tedious, and thus I wrote *flan*.
